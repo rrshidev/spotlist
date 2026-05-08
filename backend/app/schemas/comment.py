@@ -47,6 +47,22 @@ class CommentResponse(CommentBase):
         from_attributes = True
 
 
+class CommentWithSpotResponse(CommentBase):
+    id: str
+    spot_id: str
+    spot_name: str
+    user_id: str
+    username: str
+    user_avatar: Optional[str] = None
+    parent_id: Optional[str] = None
+    is_reported: bool
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+
 class ReportCreate(BaseModel):
     reason: str
 
