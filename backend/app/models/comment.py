@@ -1,7 +1,6 @@
 import uuid
 from datetime import datetime
-from sqlalchemy import Column, Text, Boolean, DateTime, ForeignKey
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Column, String, Text, Boolean, DateTime, ForeignKey
 from sqlalchemy.orm import relationship, backref
 
 from app.db.session import Base
@@ -10,11 +9,11 @@ from app.db.session import Base
 class Comment(Base):
     __tablename__ = "comments"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    spot_id = Column(UUID(as_uuid=True), ForeignKey("spots.id"), nullable=False)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    spot_id = Column(String(36), ForeignKey("spots.id"), nullable=False)
+    user_id = Column(String(36), ForeignKey("users.id"), nullable=False)
     content = Column(Text, nullable=False)
-    parent_id = Column(UUID(as_uuid=True), ForeignKey("comments.id"), nullable=True)
+    parent_id = Column(String(36), ForeignKey("comments.id"), nullable=True)
     is_reported = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, nullable=True)

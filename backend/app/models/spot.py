@@ -2,7 +2,6 @@ import uuid
 import enum
 from datetime import datetime
 from sqlalchemy import Column, String, Text, Float, Boolean, DateTime, ForeignKey, JSON, Integer
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
 from app.db.session import Base
@@ -18,7 +17,7 @@ class SpotCategory(enum.Enum):
 class Spot(Base):
     __tablename__ = "spots"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     name = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
     latitude = Column(Float, nullable=False)
@@ -28,7 +27,7 @@ class Spot(Base):
     category = Column(String(50), nullable=False, default="street")
     media = Column(JSON, default=list)
     screenshot = Column(String(500), nullable=True)
-    author_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    author_id = Column(String(36), ForeignKey("users.id"), nullable=False)
     is_checked = Column(Boolean, default=False)
     likes_count = Column(Integer, default=0)
     created_at = Column(DateTime, default=datetime.utcnow)

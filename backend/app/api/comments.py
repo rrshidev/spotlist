@@ -9,10 +9,40 @@ from app.models.user import User
 from app.models.spot import Spot
 from app.models.comment import Comment
 from app.models.report import Report
-from app.schemas.comment import CommentCreate, CommentUpdate, CommentResponse, ReportCreate, ReportResponse
+from app.schemas.comment import CommentCreate, CommentUpdate, CommentResponse, CommentWithSpotResponse, ReportCreate, ReportResponse
 from app.core.security import get_current_user
 
 router = APIRouter(tags=["comments"])
+
+
+@router.get("/comments/user", response_model=List[CommentWithSpotResponse])
+async def get_user_comments(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    result = await db.execute(
+        select(Comment)
+        .where(Comment.user_id == current_user.id)
+        .options(selectinload(Comment.user), selectinload(Comment.spot))
+        .order_by(Comment.created_at.desc())
+    )
+    comments = result.scalars().all()
+    return [
+        CommentWithSpotResponse(
+            id=str(c.id),
+            spot_id=str(c.spot_id),
+            spot_name=c.spot.name if c.spot else "Удалённый спот",
+            user_id=str(c.user_id),
+            username=c.user.username,
+            user_avatar=c.user.avatar,
+            content=c.content,
+            parent_id=str(c.parent_id) if c.parent_id else None,
+            is_reported=c.is_reported,
+            created_at=c.created_at,
+            updated_at=c.updated_at
+        )
+        for c in comments
+    ]
 
 
 @router.get("/spots/{spot_id}/comments", response_model=List[CommentResponse])
