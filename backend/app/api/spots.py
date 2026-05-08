@@ -9,7 +9,7 @@ from app.db.session import get_db
 from app.models.user import User
 from app.models.spot import Spot
 from app.schemas.spot import SpotCreate, SpotUpdate, SpotResponse, SpotListResponse
-from app.core.security import get_current_user
+from app.core.security import get_current_user, get_optional_current_user
 
 router = APIRouter(prefix="/spots", tags=["spots"])
 
@@ -67,7 +67,7 @@ async def get_spots(
     page_size: int = Query(20, ge=1, le=100),
     with_liked: bool = Query(False),
     db: AsyncSession = Depends(get_db),
-    current_user: Optional[User] = Depends(get_current_user)
+    current_user: Optional[User] = Depends(get_optional_current_user)
 ):
     query = select(Spot)
 

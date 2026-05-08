@@ -42,9 +42,10 @@ export default function ProfilePageClient() {
         
         const commentsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'}/comments/user`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-        }).catch(() => null);
-        
-        setUserComments([]);
+        });
+        if (commentsRes.ok) {
+          setUserComments(await commentsRes.json());
+        }
       } catch (error) {
         console.error('Failed to fetch profile data:', error);
       } finally {
@@ -163,9 +164,23 @@ export default function ProfilePageClient() {
                   </button>
                 </div>
               )
+            ) : userComments.length > 0 ? (
+              <div className="space-y-4">
+                {userComments.map((comment) => (
+                  <div key={comment.id} className="p-4 bg-[#0a0a0f] rounded-xl hover:bg-[#0a0a0f]/80 transition-colors cursor-pointer" onClick={() => router.push(`/spots/${comment.spot_id}`)}>
+                    <div className="flex items-center gap-2 mb-1">
+                      <MapPin className="w-3 h-3 text-[#39ff14]" />
+                      <span className="text-sm text-[#39ff14] font-medium truncate">{comment.spot_name || 'Спот'}</span>
+                    </div>
+                    <p className="text-white/80 text-sm line-clamp-2">{comment.content}</p>
+                    <p className="text-xs text-white/40 mt-1">{new Date(comment.created_at).toLocaleString('ru-RU')}</p>
+                  </div>
+                ))}
+              </div>
             ) : (
               <div className="text-center py-12">
-                <p className="text-white/60">Комментарии скоро появятся</p>
+                <Clock className="w-12 h-12 text-white/20 mx-auto mb-4" />
+                <p className="text-white/60">У тебя пока нет комментариев</p>
               </div>
             )}
           </div>

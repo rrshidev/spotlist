@@ -34,6 +34,9 @@ export default function SpotPage() {
 
   const [spot, setSpot] = useState<Spot | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
+  const [spotLiked, setSpotLiked] = useState(false);
+  const [spotLikesCount, setSpotLikesCount] = useState(0);
+  const [isSpotLiking, setIsSpotLiking] = useState(false);
   const [loading, setLoading] = useState(true);
   const [newComment, setNewComment] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -50,7 +53,10 @@ export default function SpotPage() {
           api.spots.get(spotId),
           api.comments.list(spotId),
         ]);
-        setSpot(spotData as Spot);
+        const s = spotData as Spot;
+        setSpot(s);
+        setSpotLiked(s.liked);
+        setSpotLikesCount(s.likes_count || 0);
         setComments(commentsData as Comment[]);
       } catch {
         addToast('Спот не найден', 'error');
@@ -95,6 +101,24 @@ export default function SpotPage() {
       addToast('Жалоба отправлена', 'success');
     } catch (error) {
       addToast(error instanceof Error ? error.message : 'Ошибка', 'error');
+    }
+  };
+
+  const handleLikeSpot = async () => {
+    if (!isAuthenticated) {
+      addToast('Войди, чтобы ставить лайки', 'error');
+      return;
+    }
+    if (isSpotLiking) return;
+    setIsSpotLiking(true);
+    try {
+      await api.likes.toggle(spotId);
+      setSpotLiked(!spotLiked);
+      setSpotLikesCount(prev => spotLiked ? prev - 1 : prev + 1);
+    } catch {
+      addToast('Ошибка при лайке', 'error');
+    } finally {
+      setIsSpotLiking(false);
     }
   };
 
@@ -179,6 +203,21 @@ export default function SpotPage() {
             {spot.description && (
               <p className="mt-4 text-white/80">{spot.description}</p>
             )}
+
+            <div className="mt-4 flex items-center gap-4">
+              <button
+                onClick={handleLikeSpot}
+                disabled={isSpotLiking}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-colors ${
+                  spotLiked
+                    ? 'bg-red-500/20 text-red-500'
+                    : 'bg-[#0a0a0f] text-white/60 hover:text-red-500 hover:bg-red-500/20'
+                }`}
+              >
+                <Heart className={`w-5 h-5 ${spotLiked ? 'fill-current' : ''}`} />
+                <span className="font-semibold">{spotLikesCount}</span>
+              </button>
+            </div>
 
             {spot.address && (
               <div className="mt-4 p-4 bg-[#0a0a0f] rounded-xl">
