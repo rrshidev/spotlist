@@ -34,3 +34,7 @@ docker-compose.override.yml
 
 # Node (for any future root-level node usage)
 node_modules/
+
+# Production deploy artifacts
+.env.production
+.env.prod
