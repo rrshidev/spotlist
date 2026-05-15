@@ -14,6 +14,26 @@ class SpotCategory(enum.Enum):
     ROUTES = "routes"
 
 
+class ObstacleType(enum.Enum):
+    LEDGE = "ledge"
+    RAIL = "rail"
+    STAIRS = "stairs"
+    HUBBA = "hubba"
+    GAP = "gap"
+    BANK = "bank"
+    MANUAL_PAD = "manual_pad"
+    BOWL = "bowl"
+    QUARTER_PIPE = "quarter_pipe"
+    WALLRIDE = "wallride"
+
+
+class SpotStatus(enum.Enum):
+    ACTIVE = "active"
+    BUST = "bust"
+    RISKY = "risky"
+    UNKNOWN = "unknown"
+
+
 class Spot(Base):
     __tablename__ = "spots"
 
@@ -25,8 +45,12 @@ class Spot(Base):
     address = Column(String(500), nullable=True)
     city = Column(String(255), nullable=False, index=True)
     category = Column(String(50), nullable=False, default="street")
+    obstacles = Column(JSON, default=list)
     media = Column(JSON, default=list)
     screenshot = Column(String(500), nullable=True)
+    video = Column(String(500), nullable=True)
+    status = Column(String(20), default="unknown")
+    last_status_at = Column(DateTime, nullable=True)
     author_id = Column(String(36), ForeignKey("users.id"), nullable=False)
     is_checked = Column(Boolean, default=False)
     likes_count = Column(Integer, default=0)

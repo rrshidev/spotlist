@@ -7,7 +7,15 @@ import { useToast } from '@/contexts/ToastContext';
 import { useMap } from '@/contexts/MapContext';
 import { AddSpotMap } from '@/components/Map';
 import { api } from '@/lib/api';
-import { MapPin, Loader2, Upload, X } from 'lucide-react';
+import { ObstacleItem } from '@/types';
+import { MapPin, Loader2, Upload, X, ChevronDown, ChevronUp } from 'lucide-react';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+function getMediaUrl(url: string): string {
+  if (!url) return '';
+  if (url.startsWith('http')) return url;
+  return API_URL.replace('/api/v1', '') + url;
+}
 
 const categories = [
   { value: 'park', label: 'Парк' },
@@ -15,6 +23,32 @@ const categories = [
   { value: 'roller', label: 'Роллер-дром' },
   { value: 'routes', label: 'Маршруты' },
 ];
+
+const obstacleTypes = [
+  { value: 'ledge', label: 'Ledge', icon: '▬' },
+  { value: 'rail', label: 'Rail', icon: '═' },
+  { value: 'stairs', label: 'Stairs', icon: '⊞' },
+  { value: 'hubba', label: 'Hubba', icon: '╱' },
+  { value: 'gap', label: 'Gap', icon: '⤉' },
+  { value: 'bank', label: 'Bank', icon: '╲' },
+  { value: 'manual_pad', label: 'Manual pad', icon: '▭' },
+  { value: 'bowl', label: 'Bowl', icon: '○' },
+  { value: 'quarter_pipe', label: 'Quarter pipe', icon: '⌒' },
+  { value: 'wallride', label: 'Wallride', icon: '⊢' },
+];
+
+const obstacleLabels: Record<string, string> = {
+  ledge: 'Перила (ledge)',
+  rail: 'Поручень (rail)',
+  stairs: 'Лестница (stairs)',
+  hubba: 'Хабба',
+  gap: 'Гэп',
+  bank: 'Банк',
+  manual_pad: 'Мануал-пад',
+  bowl: 'Боул',
+  quarter_pipe: 'Квотер',
+  wallride: 'Воллрайд',
+};
 
 export default function NewSpotPageClient() {
   const [name, setName] = useState('');
@@ -26,6 +60,11 @@ export default function NewSpotPageClient() {
   const [longitude, setLongitude] = useState<number | null>(null);
   const [media, setMedia] = useState<string[]>([]);
   const [screenshot, setScreenshot] = useState<string>('');
+  const [video, setVideo] = useState('');
+  const [obstacles, setObstacles] = useState<ObstacleItem[]>([]);
+  const [stairCount, setStairCount] = useState<number>(5);
+  const [showObstacles, setShowObstacles] = useState(true);
+  const [status, setStatus] = useState('unknown');
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
@@ -101,6 +140,19 @@ export default function NewSpotPageClient() {
     setMedia(media.filter((_, i) => i !== index));
   };
 
+  const toggleObstacle = (type: string) => {
+    if (obstacles.find((o) => o.type === type)) {
+      setObstacles(obstacles.filter((o) => o.type !== type));
+    } else {
+      setObstacles([...obstacles, { type, count: type === 'stairs' ? stairCount : null }]);
+    }
+  };
+
+  const updateStairCount = (count: number) => {
+    setStairCount(count);
+    setObstacles(obstacles.map((o) => (o.type === 'stairs' ? { ...o, count } : o)));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!latitude || !longitude) {
@@ -120,6 +172,9 @@ export default function NewSpotPageClient() {
         category,
         media,
         screenshot: screenshot || undefined,
+        obstacles: obstacles.length > 0 ? obstacles : undefined,
+        video: video || undefined,
+        status: status !== 'unknown' ? status : undefined,
       });
       addToast('Спот успешно добавлен!', 'success');
       router.push('/');
@@ -170,6 +225,31 @@ export default function NewSpotPageClient() {
                 </div>
 
                 <div>
+                  <label className="block text-sm text-white/60 mb-2">Статус спота</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      { value: 'active', label: 'Всё чисто', icon: '🟢' },
+                      { value: 'risky', label: 'Опасно', icon: '🟡' },
+                      { value: 'bust', label: 'Забрикован', icon: '🔴' },
+                      { value: 'unknown', label: 'Неизвестно', icon: '⚪' },
+                    ].map((s) => (
+                      <button
+                        key={s.value}
+                        type="button"
+                        onClick={() => setStatus(s.value)}
+                        className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                          status === s.value
+                            ? 'bg-[#39ff14]/20 text-[#39ff14] border border-[#39ff14]/40'
+                            : 'bg-[#1f1f2e] text-white/60 hover:text-white border border-transparent'
+                        }`}
+                      >
+                        {s.icon} {s.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
                   <label className="block text-sm text-white/60 mb-2">Категория</label>
                   <div className="grid grid-cols-2 gap-2">
                     {categories.map((cat) => (
@@ -187,6 +267,51 @@ export default function NewSpotPageClient() {
                       </button>
                     ))}
                   </div>
+                </div>
+
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => setShowObstacles(!showObstacles)}
+                    className="flex items-center justify-between w-full px-4 py-3 bg-[#0a0a0f] border border-[#1f1f2e] rounded-xl text-white/70 hover:text-white transition-colors"
+                  >
+                    <span>Препятствия {obstacles.length > 0 && `(${obstacles.length})`}</span>
+                    {showObstacles ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  </button>
+                  {showObstacles && (
+                    <div className="mt-2 p-3 bg-[#0a0a0f] border border-[#1f1f2e] rounded-xl space-y-2">
+                      <div className="grid grid-cols-2 gap-2">
+                        {obstacleTypes.map((obs) => (
+                          <button
+                            key={obs.value}
+                            type="button"
+                            onClick={() => toggleObstacle(obs.value)}
+                            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                              obstacles.find((o) => o.type === obs.value)
+                                ? 'bg-[#39ff14]/20 text-[#39ff14] border border-[#39ff14]/40'
+                                : 'bg-[#1f1f2e] text-white/60 hover:text-white border border-transparent'
+                            }`}
+                          >
+                            <span className="text-sm">{obs.icon}</span>
+                            {obs.label}
+                          </button>
+                        ))}
+                      </div>
+                      {obstacles.find((o) => o.type === 'stairs') && (
+                        <div className="flex items-center gap-2 pt-2 border-t border-[#1f1f2e]">
+                          <label className="text-xs text-white/60">Ступеней:</label>
+                          <input
+                            type="number"
+                            min={1}
+                            max={50}
+                            value={stairCount}
+                            onChange={(e) => updateStairCount(Number(e.target.value))}
+                            className="w-20 px-3 py-1.5 bg-[#1f1f2e] border border-[#1f1f2e] rounded-lg text-white text-sm focus:border-[#39ff14] focus:outline-none"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 <div>
@@ -217,7 +342,7 @@ export default function NewSpotPageClient() {
                   <div className="flex flex-wrap gap-2">
                     {media.map((url, index) => (
                       <div key={index} className="relative w-20 h-20 rounded-lg overflow-hidden">
-                        <img src={url} alt="" className="w-full h-full object-cover" />
+                        <img src={getMediaUrl(url)} alt="" className="w-full h-full object-cover" />
                         <button
                           type="button"
                           onClick={() => removePhoto(index)}
@@ -251,7 +376,7 @@ export default function NewSpotPageClient() {
                     <p className="text-xs text-white/40 mb-2">Загрузи скриншот маршрута из приложения</p>
                     {screenshot ? (
                       <div className="relative w-full h-32 rounded-xl overflow-hidden">
-                        <img src={screenshot} alt="Скриншот маршрута" className="w-full h-full object-cover" />
+                        <img src={getMediaUrl(screenshot)} alt="Скриншот маршрута" className="w-full h-full object-cover" />
                         <button
                           type="button"
                           onClick={() => setScreenshot('')}
@@ -281,6 +406,17 @@ export default function NewSpotPageClient() {
                     )}
                   </div>
                 )}
+
+                <div>
+                  <label className="block text-sm text-white/60 mb-2">Видео (ссылка)</label>
+                  <input
+                    type="text"
+                    value={video}
+                    onChange={(e) => setVideo(e.target.value)}
+                    className="w-full px-4 py-3 bg-[#0a0a0f] border border-[#1f1f2e] rounded-xl text-white placeholder:text-white/40 focus:border-[#39ff14] focus:outline-none"
+                    placeholder="https://example.com/video.mp4"
+                  />
+                </div>
               </div>
 
               <div>

@@ -6,14 +6,27 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { AddSpotMap } from '@/components/Map';
 import { api } from '@/lib/api';
-import { Spot } from '@/types';
-import { MapPin, Loader2, Upload, X, ArrowLeft } from 'lucide-react';
+import { Spot, ObstacleItem } from '@/types';
+import { MapPin, Loader2, Upload, X, ArrowLeft, ChevronDown, ChevronUp } from 'lucide-react';
 
 const categories = [
   { value: 'park', label: 'Парк' },
   { value: 'street', label: 'Стрит' },
   { value: 'roller', label: 'Роллер-дром' },
   { value: 'routes', label: 'Маршруты' },
+];
+
+const obstacleTypes = [
+  { value: 'ledge', label: 'Ledge', icon: '▬' },
+  { value: 'rail', label: 'Rail', icon: '═' },
+  { value: 'stairs', label: 'Stairs', icon: '⊞' },
+  { value: 'hubba', label: 'Hubba', icon: '╱' },
+  { value: 'gap', label: 'Gap', icon: '⤉' },
+  { value: 'bank', label: 'Bank', icon: '╲' },
+  { value: 'manual_pad', label: 'Manual pad', icon: '▭' },
+  { value: 'bowl', label: 'Bowl', icon: '○' },
+  { value: 'quarter_pipe', label: 'Quarter pipe', icon: '⌒' },
+  { value: 'wallride', label: 'Wallride', icon: '⊢' },
 ];
 
 export default function EditSpotPage() {
@@ -29,6 +42,10 @@ export default function EditSpotPage() {
   const [latitude, setLatitude] = useState<number | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
   const [media, setMedia] = useState<string[]>([]);
+  const [obstacles, setObstacles] = useState<ObstacleItem[]>([]);
+  const [stairCount, setStairCount] = useState<number>(5);
+  const [showObstacles, setShowObstacles] = useState(false);
+  const [video, setVideo] = useState('');
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const { isAuthenticated, isLoading: authLoading, user } = useAuth();
@@ -56,6 +73,10 @@ export default function EditSpotPage() {
         setLatitude(spot.latitude);
         setLongitude(spot.longitude);
         setMedia(spot.media || []);
+        setObstacles(spot.obstacles || []);
+        setVideo(spot.video || '');
+        const stairs = (spot.obstacles || []).find((o: ObstacleItem) => o.type === 'stairs');
+        if (stairs?.count) setStairCount(stairs.count);
       } catch {
         addToast('Спот не найден', 'error');
         router.push('/');
@@ -86,6 +107,19 @@ export default function EditSpotPage() {
     }
   };
 
+  const toggleObstacle = (type: string) => {
+    if (obstacles.find((o) => o.type === type)) {
+      setObstacles(obstacles.filter((o) => o.type !== type));
+    } else {
+      setObstacles([...obstacles, { type, count: type === 'stairs' ? stairCount : null }]);
+    }
+  };
+
+  const updateStairCount = (count: number) => {
+    setStairCount(count);
+    setObstacles(obstacles.map((o) => (o.type === 'stairs' ? { ...o, count } : o)));
+  };
+
   const handleSubmit = async () => {
     if (!name.trim() || !city.trim() || !latitude || !longitude) {
       addToast('Заполните обязательные поля', 'error');
@@ -102,6 +136,8 @@ export default function EditSpotPage() {
         latitude,
         longitude,
         media,
+        obstacles: obstacles.length > 0 ? obstacles : undefined,
+        video: video || undefined,
       });
       addToast('Спот обновлён', 'success');
       router.push(`/spots/${spotId}`);
@@ -192,7 +228,7 @@ export default function EditSpotPage() {
             <div className="h-64 rounded-xl overflow-hidden border border-[#1f1f2e]">
               <AddSpotMap 
                 center={latitude && longitude ? [latitude, longitude] : undefined}
-                onLocationChange={(lat, lon) => {
+                onLocationSelect={(lat, lon) => {
                   setLatitude(lat);
                   setLongitude(lon);
                 }}
@@ -201,6 +237,62 @@ export default function EditSpotPage() {
             {!latitude && (
               <p className="text-xs text-yellow-400 mt-1">Выберите место на карте</p>
             )}
+          </div>
+
+          <div>
+            <button
+              type="button"
+              onClick={() => setShowObstacles(!showObstacles)}
+              className="flex items-center justify-between w-full px-4 py-3 bg-[#0a0a0f] border border-[#1f1f2e] rounded-xl text-white/70 hover:text-white transition-colors"
+            >
+              <span>Препятствия {obstacles.length > 0 && `(${obstacles.length})`}</span>
+              {showObstacles ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </button>
+            {showObstacles && (
+              <div className="mt-2 p-3 bg-[#0a0a0f] border border-[#1f1f2e] rounded-xl space-y-2">
+                <div className="grid grid-cols-2 gap-2">
+                  {obstacleTypes.map((obs) => (
+                    <button
+                      key={obs.value}
+                      type="button"
+                      onClick={() => toggleObstacle(obs.value)}
+                      className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                        obstacles.find((o) => o.type === obs.value)
+                          ? 'bg-[#39ff14]/20 text-[#39ff14] border border-[#39ff14]/40'
+                          : 'bg-[#1f1f2e] text-white/60 hover:text-white border border-transparent'
+                      }`}
+                    >
+                      <span className="text-sm">{obs.icon}</span>
+                      {obs.label}
+                    </button>
+                  ))}
+                </div>
+                {obstacles.find((o) => o.type === 'stairs') && (
+                  <div className="flex items-center gap-2 pt-2 border-t border-[#1f1f2e]">
+                    <label className="text-xs text-white/60">Ступеней:</label>
+                    <input
+                      type="number"
+                      min={1}
+                      max={50}
+                      value={stairCount}
+                      onChange={(e) => updateStairCount(Number(e.target.value))}
+                      className="w-20 px-3 py-1.5 bg-[#1f1f2e] border border-[#1f1f2e] rounded-lg text-white text-sm focus:border-[#39ff14] focus:outline-none"
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-sm text-white/60 mb-1">Видео (ссылка)</label>
+            <input
+              type="text"
+              value={video}
+              onChange={(e) => setVideo(e.target.value)}
+              placeholder="https://example.com/video.mp4"
+              className="w-full px-4 py-3 bg-[#0a0a0f] border border-[#1f1f2e] rounded-xl text-white"
+            />
           </div>
 
           <div>

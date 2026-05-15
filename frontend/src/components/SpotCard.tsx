@@ -6,7 +6,7 @@ import { Spot } from '@/types';
 import { api } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
-import { MapPin, Clock, Image as ImageIcon, Navigation, Heart } from 'lucide-react';
+import { MapPin, Clock, Image as ImageIcon, Navigation, Heart, Video, ShieldAlert, ShieldCheck, ShieldX } from 'lucide-react';
 
 interface SpotCardProps {
   spot: Spot;
@@ -80,6 +80,35 @@ export function SpotCard({ spot }: SpotCardProps) {
             {categoryLabels[spot.category] || spot.category}
           </div>
 
+          {spot.obstacles && spot.obstacles.length > 0 && (
+            <div className="absolute top-3 right-3 flex gap-1">
+              {spot.obstacles.slice(0, 3).map((obs, i) => (
+                <span
+                  key={i}
+                  className="px-1.5 py-0.5 rounded bg-black/70 text-[10px] text-white font-mono"
+                  title={obs.count ? `${obs.type} (${obs.count})` : obs.type}
+                >
+                  {obs.type === 'ledge' ? '▬' : obs.type === 'rail' ? '═' : obs.type === 'stairs' ? `⊞${obs.count??''}` : obs.type === 'hubba' ? '╱' : obs.type === 'gap' ? '⤉' : obs.type === 'bank' ? '╲' : obs.type === 'manual_pad' ? '▭' : obs.type === 'bowl' ? '○' : obs.type === 'quarter_pipe' ? '⌒' : obs.type === 'wallride' ? '⊢' : obs.type[0]}
+                </span>
+              ))}
+              {spot.obstacles.length > 3 && (
+                <span className="px-1.5 py-0.5 rounded bg-black/70 text-[10px] text-white">+{spot.obstacles.length - 3}</span>
+              )}
+            </div>
+          )}
+
+          {spot.status && spot.status !== 'unknown' && (
+            <div className="absolute top-12 right-3">
+              {spot.status === 'active' ? (
+                <ShieldCheck className="w-5 h-5 text-green-400 drop-shadow-lg" />
+              ) : spot.status === 'bust' ? (
+                <ShieldX className="w-5 h-5 text-red-400 drop-shadow-lg" />
+              ) : spot.status === 'risky' ? (
+                <ShieldAlert className="w-5 h-5 text-yellow-400 drop-shadow-lg" />
+              ) : null}
+            </div>
+          )}
+
           {spot.distance && (
             <div className="absolute top-3 right-3 px-2 py-1 rounded-full bg-black/70 text-xs text-white flex items-center gap-1">
               <Navigation className="w-3 h-3" />
@@ -103,6 +132,7 @@ export function SpotCard({ spot }: SpotCardProps) {
             <div className="absolute bottom-3 right-3 px-2 py-1 rounded-full bg-black/70 text-xs text-white flex items-center gap-1">
               <ImageIcon className="w-3 h-3" />
               {spot.media?.length || 0}
+              {spot.video && <Video className="w-3 h-3 ml-1" />}
             </div>
           )}
         </div>

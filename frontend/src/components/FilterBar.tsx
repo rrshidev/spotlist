@@ -24,8 +24,22 @@ const radiusOptions = [
   { value: 50, label: '50 км' },
 ];
 
+const obstacleTypes = [
+  { value: '', label: 'Все препятствия' },
+  { value: 'ledge', label: '▬ Ледж' },
+  { value: 'rail', label: '═ Рейл' },
+  { value: 'stairs', label: '⊞ Лестница' },
+  { value: 'hubba', label: '╱ Хабба' },
+  { value: 'gap', label: '⤉ Гэп' },
+  { value: 'bank', label: '╲ Банк' },
+  { value: 'manual_pad', label: '▭ Мануал-пад' },
+  { value: 'bowl', label: '○ Боул' },
+  { value: 'quarter_pipe', label: '⌒ Квотер' },
+  { value: 'wallride', label: '⊢ Валлрайд' },
+];
+
 export function FilterBar({ viewMode, onViewModeChange }: FilterBarProps) {
-  const { category, setCategory, radius, setRadius, city, setCity } = useMap();
+  const { category, setCategory, radius, setRadius, city, setCity, obstacleType, setObstacleType, stairCount, setStairCount } = useMap();
 
   return (
     <div className="bg-[#12121a] border border-[#1f1f2e] rounded-xl p-4">
@@ -62,6 +76,32 @@ export function FilterBar({ viewMode, onViewModeChange }: FilterBarProps) {
             </option>
           ))}
         </select>
+
+        <div className="flex items-center gap-2">
+          <select
+            value={obstacleType}
+            onChange={(e) => setObstacleType(e.target.value)}
+            className="px-3 py-1.5 rounded-lg bg-[#1f1f2e] text-white text-sm border-none outline-none cursor-pointer"
+          >
+            {obstacleTypes.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+
+          {obstacleType === 'stairs' && (
+            <input
+              type="number"
+              min="1"
+              max="50"
+              value={stairCount}
+              onChange={(e) => setStairCount(e.target.value)}
+              placeholder="Кол-во ступеней"
+              className="w-36 px-3 py-1.5 rounded-lg bg-[#1f1f2e] text-white text-sm border-none outline-none placeholder:text-white/40"
+            />
+          )}
+        </div>
 
         <div className="flex-1" />
 

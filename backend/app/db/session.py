@@ -1,5 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from sqlalchemy.orm import declarative_base
+from sqlalchemy import text
 
 from app.core.config import settings
 
@@ -24,3 +25,8 @@ async def get_db():
 async def init_db():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        # Add columns that may be missing from existing tables
+        await conn.execute(text("ALTER TABLE spots ADD COLUMN IF NOT EXISTS obstacles JSON DEFAULT '[]'::json"))
+        await conn.execute(text("ALTER TABLE spots ADD COLUMN IF NOT EXISTS video VARCHAR(500)"))
+        await conn.execute(text("ALTER TABLE spots ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'unknown'"))
+        await conn.execute(text("ALTER TABLE spots ADD COLUMN IF NOT EXISTS last_status_at TIMESTAMP WITH TIME ZONE"))

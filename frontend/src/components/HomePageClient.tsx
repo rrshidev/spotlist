@@ -14,7 +14,8 @@ export function HomePageClient() {
   const [spots, setSpots] = useState<Spot[]>([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
-  const { location, radius, category, city, setCity, detectedCity, isLoading: locationLoading } = useMap();
+  const { location, radius, category, city, obstacleType, stairCount, setCity, detectedCity, isLoading: locationLoading } = useMap();
+  const hasFilter = !!(city || detectedCity || location);
 
   useEffect(() => {
     async function fetchSpots() {
@@ -22,7 +23,11 @@ export function HomePageClient() {
       try {
         const params: Parameters<typeof api.spots.list>[0] = {};
         
-        if (location) {
+        if (city) {
+          params.city = city;
+        } else if (detectedCity) {
+          params.city = detectedCity;
+        } else if (location) {
           params.lat = location.lat;
           params.lon = location.lon;
           params.radius = radius;
@@ -31,9 +36,13 @@ export function HomePageClient() {
         if (category) {
           params.category = category;
         }
-        
-        if (city) {
-          params.city = city;
+
+        if (obstacleType) {
+          params.obstacle_type = obstacleType;
+        }
+
+        if (stairCount) {
+          params.stair_count = parseInt(stairCount, 10);
         }
 
         const response = await api.spots.list(params) as SpotListResponse;
@@ -45,10 +54,13 @@ export function HomePageClient() {
       }
     }
 
-    if (!locationLoading) {
+    if (!locationLoading && hasFilter) {
       fetchSpots();
+    } else if (!locationLoading && !hasFilter) {
+      setLoading(false);
+      setSpots([]);
     }
-  }, [location, radius, category, city, locationLoading]);
+  }, [location, radius, category, city, detectedCity, locationLoading, hasFilter]);
 
   return (
     <div className="flex flex-col h-full">
@@ -63,23 +75,28 @@ export function HomePageClient() {
                 Найди свой <span className="text-[#39ff14]">спот</span>
               </h1>
               <p className="text-sm text-white/50">
-                {city
-                  ? `Споты в ${city}`
-                  : locationLoading
-                    ? 'Определяем местоположение...'
+                {locationLoading
+                  ? 'Определяем местоположение...'
+                  : city
+                    ? `Споты в ${city}`
                     : detectedCity
                       ? `Споты рядом — ${detectedCity}`
-                      : 'Споты рядом с тобой'}
+                      : 'Укажи город или разреши геолокацию'}
               </p>
             </div>
             <div className="w-64">
               <CitySearch />
             </div>
           </div>
-          {detectedCity && !city && (
-            <div className="mb-4 flex items-center gap-2 text-sm text-white/50">
-              <Navigation className="w-3 h-3 text-[#39ff14]" />
-              Твой город: <button onClick={() => setCity(detectedCity)} className="text-[#39ff14] hover:underline">{detectedCity}</button>
+          {detectedCity && (
+            <div className="mb-4 flex items-center gap-2 text-sm text-white/60">
+              <Navigation className="w-4 h-4 text-[#39ff14]" />
+              <span>Твой город: <strong className="text-white">{detectedCity}</strong></span>
+              {city !== detectedCity && (
+                <button onClick={() => setCity(detectedCity)} className="ml-2 px-2 py-0.5 rounded bg-[#39ff14]/20 text-[#39ff14] text-xs hover:bg-[#39ff14]/30 transition-colors">
+                  Показать споты
+                </button>
+              )}
             </div>
           )}
           <FilterBar viewMode={viewMode} onViewModeChange={setViewMode} />
@@ -99,9 +116,13 @@ export function HomePageClient() {
           ) : spots.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-64 text-center">
               <MapPin className="w-16 h-16 text-white/20 mb-4" />
-              <h3 className="text-xl font-semibold text-white/60 mb-2">Спотов не найдено</h3>
+              <h3 className="text-xl font-semibold text-white/60 mb-2">
+                {hasFilter ? 'Спотов не найдено' : 'Выбери город'}
+              </h3>
               <p className="text-white/40">
-                Попробуй изменить фильтры или расширить радиус поиска
+                {hasFilter
+                  ? 'Попробуй изменить фильтры или расширить радиус поиска'
+                  : 'Воспользуйся поиском города или разреши геолокацию'}
               </p>
             </div>
           ) : (

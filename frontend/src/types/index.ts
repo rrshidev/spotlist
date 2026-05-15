@@ -11,6 +11,11 @@ export interface User {
   bio: string | null;
 }
 
+export interface ObstacleItem {
+  type: string;
+  count?: number | null;
+}
+
 export interface Spot {
   id: string;
   name: string;
@@ -20,8 +25,12 @@ export interface Spot {
   address: string | null;
   city: string;
   category: 'park' | 'street' | 'roller' | 'routes';
+  obstacles: ObstacleItem[];
   media: string[];
   screenshot: string | null;
+  video: string | null;
+  status: string;
+  last_status_at: string | null;
   author_id: string;
   author_username: string | null;
   author_avatar: string | null;

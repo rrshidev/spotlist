@@ -1,6 +1,12 @@
 from datetime import datetime
 from typing import Optional, List
 from pydantic import BaseModel
+from enum import Enum
+
+
+class ObstacleItem(BaseModel):
+    type: str
+    count: Optional[int] = None
 
 
 class SpotBase(BaseModel):
@@ -16,6 +22,9 @@ class SpotBase(BaseModel):
 class SpotCreate(SpotBase):
     media: Optional[List[str]] = None
     screenshot: Optional[str] = None
+    video: Optional[str] = None
+    status: Optional[str] = None
+    obstacles: Optional[List[ObstacleItem]] = None
 
 
 class SpotUpdate(BaseModel):
@@ -26,12 +35,18 @@ class SpotUpdate(BaseModel):
     category: Optional[str] = None
     media: Optional[List[str]] = None
     screenshot: Optional[str] = None
+    video: Optional[str] = None
+    obstacles: Optional[List[ObstacleItem]] = None
 
 
 class SpotResponse(SpotBase):
     id: str
+    obstacles: List[ObstacleItem] = []
     media: List[str] = []
     screenshot: Optional[str] = None
+    video: Optional[str] = None
+    status: str = "unknown"
+    last_status_at: Optional[datetime] = None
     author_id: str
     author_username: Optional[str] = None
     author_avatar: Optional[str] = None
@@ -43,6 +58,10 @@ class SpotResponse(SpotBase):
 
     class Config:
         from_attributes = True
+
+
+class SpotStatusUpdate(BaseModel):
+    status: str
 
 
 class SpotListResponse(BaseModel):

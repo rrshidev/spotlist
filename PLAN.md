@@ -1,8 +1,6 @@
-# SPOTLIST - План MVP
+# SPOTLIST — Development Roadmap
 
-## Описание
-
-Веб-приложение для скейтеров, роллеров и других экстремалов. Позволяет находить споты (места для катания) в любом городе, добавлять новые, делиться впечатлениями через комментарии.
+Веб-приложение для скейтеров, роллеров и экстремалов. Поиск, добавление и обсуждение спотов (мест для катания) на карте.
 
 ---
 
@@ -10,171 +8,226 @@
 
 | Компонент | Технология |
 |-----------|------------|
-| Frontend | Next.js 14, TypeScript, Tailwind CSS (тёмная + неон) |
-| Backend | FastAPI, Python 3.11, SQLAlchemy |
-| Database | PostgreSQL + PostGIS |
-| Auth | JWT токены (email + пароль) |
+| Frontend | Next.js 16, TypeScript, Tailwind CSS v4 (тёмная + неон) |
+| Backend | FastAPI, Python 3.11+, SQLAlchemy async |
+| Database | PostgreSQL + PostGIS (prod), SQLite + aiosqlite (tests) |
+| Auth | JWT (python-jose + bcrypt), OAuth2PasswordBearer |
 | Map | React-Leaflet + OpenStreetMap + Nominatim |
-| Files | Локально `backend/uploads/` |
+| Files | `backend/uploads/` (локально) |
+| Infra | Docker Compose (dev), healthcheck + restart policy |
+| Tests | pytest + httpx + aiosqlite (backend), Vitest (frontend) |
 
 ---
 
-## Структура проекта
+## Структура
 
 ```
 c:/Projects/spotlist/
-├── frontend/              # Next.js
-├── backend/              # FastAPI
+├── frontend/              # Next.js 16 (Turbopack)
+│   └── src/
+│       ├── app/           # Страницы (маршруты)
+│       ├── contexts/      # AuthContext, MapContext, ToastContext
+│       ├── lib/           # API client, helpers
+│       └── types/         # TypeScript интерфейсы
+├── backend/               # FastAPI
 │   ├── app/
-│   │   ├── api/          # Роуты
-│   │   ├── core/         # Конфиг, auth
-│   │   ├── db/           # БД
-│   │   ├── models/       # SQLAlchemy модели
-│   │   ├── schemas/      # Pydantic
-│   │   └── services/     # Бизнес-логика
-│   └── uploads/          # Фото
-├── docker-compose.yml
+│   │   ├── api/           # Роуты (auth, spots, comments, etc.)
+│   │   ├── core/          # config, security (JWT, hashing)
+│   │   ├── db/            # session, Base
+│   │   ├── models/        # SQLAlchemy модели
+│   │   └── schemas/       # Pydantic схемы
+│   ├── tests/             # pytest тесты (29 шт.)
+│   └── uploads/           # Фото/видео (gitignored)
+├── docker-compose.yml     # healthcheck + restart: unless-stopped
 └── PLAN.md
 ```
 
 ---
 
-## Модель данных
-
-### Users
-- `id` - UUID, PK
-- `email` - str, unique
-- `username` - str
-- `password_hash` - str
-- `role` - enum (user/admin)
-- `is_active` - bool
-- `created_at` - datetime
-
-### Spots
-- `id` - UUID, PK
-- `name` - str
-- `description` - text
-- `latitude` - float
-- `longitude` - float
-- `address` - str
-- `city` - str (автоопределение + юзер может исправить)
-- `category` - enum (park/street/roller/routes)
-- `media` - JSON array (пути к фото)
-- `screenshot` - str (nullable, скриншот маршрута)
-- `author_id` - FK -> User
-- `is_checked` - bool (false = на проверке, true = одобрен)
-- `created_at` - datetime
-
-### Comments
-- `id` - UUID, PK
-- `spot_id` - FK -> Spot
-- `user_id` - FK -> User
-- `content` - text
-- `is_reported` - bool
-- `created_at` - datetime
-- `updated_at` - datetime (nullable)
-
-### Reports (жалобы на комменты)
-- `id` - UUID, PK
-- `comment_id` - FK -> Comment
-- `reporter_id` - FK -> User
-- `reason` - str
-- `created_at` - datetime
-
----
-
-## API эндпоинты
+## Текущие возможности (Phase 0 — ✅ готово)
 
 ### Auth
-- `POST /auth/register` - регистрация (email, username, password)
-- `POST /auth/login` - login, возвращает JWT токен
-- `GET /auth/me` - получить текущего юзера
+- Регистрация (email, username, password)
+- JWT-логин (OAuth2 form → Bearer token)
+- Профиль: GET/PUT `/auth/me`
+- Роли: user / admin
+- `get_current_user` (required) + `get_optional_current_user`
 
 ### Spots
-- `GET /spots` - список (фильтры: category, lat, lon, radius_km)
-- `GET /spots/{id}` - детали спота
-- `POST /spots` - создать спот (требует авторизации)
-- `PUT /spots/{id}` - редактировать (автор)
-- `DELETE /spots/{id}` - удалить (автор или админ)
+- CRUD (создание только авторизованными)
+- Список с пагинацией: `GET /spots?city=&category=&lat=&lon=&radius=`
+- Мои споты: `GET /spots/my`
+- Фото: массив `media`, скриншот маршрута `screenshot`
+- Модерация: `is_checked` (админ одобряет)
+- Сортировка по расстоянию (haversine)
 
 ### Comments
-- `GET /spots/{id}/comments` - комменты спота
-- `POST /spots/{id}/comments` - добавить коммент
-- `PUT /comments/{id}` - редактировать (автор)
-- `DELETE /comments/{id}` - удалить (автор)
-- `POST /comments/{id}/report` - пожаловаться на коммент
+- CRUD, threaded replies (`parent_id`)
+- Список по споту: `GET /spots/{id}/comments`
+- Мои комменты: `GET /comments/user` (с `spot_name`)
+- Жалобы: `POST /comments/{id}/report`
+- Админ: жалобы + игнор
 
-### Admin (требует role=admin)
-- `GET /admin/spots` - все споты (включая непроверенные)
-- `GET /admin/users` - список юзеров
-- `PATCH /admin/users/{id}/ban` - забанить/разбанить юзера
-- `PATCH /admin/spots/{id}/check` - пометить проверенным
-- `DELETE /admin/spots/{id}` - удалить липовый спот
-- `GET /admin/reports` - список жалоб на комменты
+### Likes
+- Тоггл лайка спота: `POST /likes/{spot_id}`
+- Тоггл лайка коммента: `POST /likes/comment/{comment_id}`
+- Список лайкнутых спотов: `GET /likes`
+
+### Admin
+- Статистика: споты, юзеры, комменты, жалобы
+- Управление пользователями: бан/разбан
+- Модерация спотов: одобрить/удалить
+- Обработка жалоб
 
 ### Geo
-- `GET /geo/reverse?lat=X&lon=Y` - Nominatim: получить город по координатам
+- Forward geocoding: `GET /geo/search?q=`
+- Reverse geocoding: `GET /geo/reverse?lat=&lon=`
 
-### Files
-- `GET /uploads/{filename}` - получить файл (фото)
+### Uploads
+- Загрузка файлов (jpeg, png, webp, gif; макс 5MB)
+- `POST /uploads` → `{url: "/api/v1/uploads/filename"}`
+- Раздача статики: `GET /uploads/{filename}`
 
----
+### Frontend
+- Главная: карта + список (переключение), CitySearch, FilterBar (категория, радиус)
+- Карточка спота: фото, описание, карта, комменты, лайки
+- Создание спота: карта + форма + загрузка фото
+- Профиль: аватар, инфо, мои споты, мои комменты, настройки
+- Админка: табы (споты на проверку, юзеры, жалобы)
+- Регистрация / логин
+- Темная неоновая тема
 
-## Frontend страницы
-
-| Маршрут | Описание |
-|---------|----------|
-| `/` | Главная: карта + список спотов рядом, фильтры |
-| `/spots/[id]` | Карточка спота: инфо, фото, комменты |
-| `/spots/new` | Добавить спот (авто-город, категория, загрузка фото) |
-| `/login` | Авторизация |
-| `/register` | Регистрация |
-| `/profile` | Профиль юзера (свои споты, комменты) |
-| `/admin` | Админка: споты на проверку, юзеры, баны |
-
----
-
-## Фильтры на главной
-
-- **Категория**: Все / Парк / Стрит / Роллер-дром / Маршруты
-- **Дистанция**: 1км / 5км / 10км / 25км / 50км
-- **Вид**: Список / Карта (переключение)
+### Tests
+- Backend: 36 тестов (pytest + httpx + aiosqlite)
+- Frontend: 3 теста (Vitest — type-shape)
 
 ---
 
-## Функционал админки
+## Фаза 1 — Priority features (перед деплоем)
 
-1. **Споты на проверку** - таблица новых спотов, кнопка "Одобрить"
-2. **Пользователи** - список, бан/разбан
-3. **Жалобы** - комменты, помеченные как reported
-4. **Статистика** - всего спотов, юзеров, комментов
+### 1.1 Obstacle tags ✅
+
+**Суть:** детальные теги препятствий на споте: ledge, rail, stairs, hubba, gap, bank, manual_pad, bowl, quarter_pipe, wallride. Для stairs — количество ступеней. Фильтр по типу препятствия + числу ступеней.
+
+**Backend:**
+- ✅ `ObstacleType` enum в models/spot.py
+- ✅ `obstacles: JSON` колонка в Spot
+- ✅ SpotCreate/SpotUpdate: `obstacles: Optional[List[Obstacle]]`
+- ✅ SpotResponse: `obstacles: List[Obstacle]`
+- ✅ `GET /spots?obstacle_type=&stair_count=`
+
+**Frontend:**
+- ✅ `Obstacle` type + `obstacles` поле в Spot
+- ✅ CreateSpot: мультиселект препятствий + число ступеней
+- ✅ SpotCard: иконки препятствий
+- ✅ SpotDetail: блок "Препятствия"
+- ✅ FilterBar: селект типа + ввод ступеней
+
+### 1.2 Spot status / condition ✅
+
+**Суть:** пользователи отмечают состояние спота — "Всё ок", "Bust (застроили/закрыли)", "Risky (охрана/опасно)", "Неизвестно". Помогает не тратить время на мёртвые споты.
+
+**Backend:**
+- ✅ `SpotStatus` enum (active, bust, risky, unknown)
+- ✅ `status: String(20)` колонка (default=unknown)
+- ✅ `last_status_at: DateTime` колонка
+- ✅ `PATCH /spots/{id}/status` — любой авторизованный меняет статус
+- ✅ SpotResponse: `status`, `last_status_at`
+
+**Frontend:**
+- ✅ SpotDetail: набор кнопок статуса + активный бейдж
+- ✅ SpotCard: цветной индикатор (зелёный/красный/жёлтый/серый)
+- ❌ Filter: "показать только active" (отложено)
+
+### 1.3 Video upload ✅
+
+**Суть:** загрузка короткого видео-клипа трюка на споте.
+
+**Backend:**
+- ❌ Расширить uploads: разрешить `video/mp4`, `video/quicktime`, макс 50MB (отложено — сейчас только ссылка на внешнее видео)
+- ✅ `video: String(500)` колонка в Spot (URL)
+- ✅ SpotCreate/SpotUpdate: `video: Optional[str]`
+- ✅ SpotResponse: `video`
+
+**Frontend:**
+- ❌ CreateSpot: drag-n-drop зона для видео (отложено — сейчас текстовый ввод ссылки)
+- ✅ SpotDetail: HTML5 `<video>` плеер
+- ✅ SpotCard: иконка "есть видео"
+
+### 1.4 Obstacle filter UI 🔍
+
+**Суть:** удобный фильтр на главной по типу препятствия.
+
+**Frontend:**
+- ✅ FilterBar: выпадающий список с иконками препятствий
+- ✅ Числовой ввод "ступеней" (для stairs)
+- ✅ Активный фильтр подсвечен
+
+---
+
+## Фаза 2 — Growth (после деплоя, параллельно маркетингу)
+
+### 2.1 Геймификация (XP / уровни / лидерборд)
+- Начисление XP: спот (+50), видео (+30), коммент (+10), лайк (+5), статус (+5)
+- Лидерборд топ-райтеров
+- Прогресс-бар в профиле
+- Ачивки / бейджи
+
+### 2.2 Wishlist / Bucket list
+- Кнопка "сохранить" на карточке и детальной странице
+- Страница `/wishlist`
+
+### 2.3 Уведомления
+- "Новый спот в твоём городе"
+- "Изменился статус спота"
+- WebSocket или SSE + Service Worker
+
+### 2.4 SEO
+- SSR для страниц спотов
+- Open Graph мета-теги
+- sitemap.xml
+
+---
+
+## Фаза 3 — Strategic (прокачка)
+
+### 3.1 Погода на споте
+- Интеграция OpenWeatherMap API
+- "Сейчас сухо, можно кататься" / "Мокро, не вариант"
+
+### 3.2 Сессии / Джемы
+- Создание встречи на споте: дата, время, описание
+- Присоединиться / отписаться
+- Страница `/sessions`
+
+### 3.3 Мобильные приложения
+- PWA (иконка на телефоне + push)
+- В перспективе — React Native / Flutter
 
 ---
 
 ## Этапы реализации
 
-- [x] 1. Создать структуру проекта и PLAN.md
-- [x] 2. Backend: requirements.txt, конфиг, БД
-- [x] 3. Backend: модели User, Spot, Comment
-- [x] 4. Backend: CRUD эндпоинты для спотов
-- [x] 5. Backend: auth (register, login, JWT)
-- [x] 6. Backend: комменты
-- [x] 7. Backend: admin + geo (Nominatim)
-- [x] 8. Frontend: setup Next.js + Tailwind
-- [x] 9. Frontend: главная + карта
-- [x] 10. Frontend: карточка + комменты
-- [x] 11. Frontend: добавление спота
-- [x] 12. Frontend: фильтры + профиль
-- [x] 13. Frontend: админка
-- [ ] 14. Docker + тесты локально
-- [ ] 15. VPS деплой
+- [x] Phase 0: Текущий MVP (все базовые фичи)
+- [x] Phase 1.1: Obstacle tags
+- [x] Phase 1.2: Spot status / condition
+- [x] Phase 1.3: Video upload (ссылка, drag-n-drop отложен)
+- [x] Phase 1.4: Obstacle filter UI
+- [x] Phase 1: Smoke test + Docker rebuild
+- [ ] Phase 1: **Деплой**
+- [ ] Phase 2.1: Геймификация
+- [ ] Phase 2.2: Wishlist
+- [ ] Phase 2.3: Уведомления
+- [ ] Phase 2.4: SEO
+- [ ] Phase 3: Погода, сессии, PWA
 
 ---
 
 ## Правила
 
-- Споты публикуются сразу, но попадают на проверку админу
-- Комменты можно редактировать и удалять (автор)
-- Кнопка "Пожаловаться" на комменты
-- Город определяется автоматически через Nominatim, юзер может исправить
-- Маршруты - скриншот из стороннего приложения (как фото)
+- Миграция: `init_db()` добавляет недостающие колонки через `ALTER TABLE ... ADD COLUMN IF NOT EXISTS` (Alembic пока нет)
+- Споты публикуются сразу, `is_checked = false` — на проверку админу
+- Комменты можно редактировать и удалять (автор или админ)
+- Статус спота может менять любой авторизованный пользователь (без истории)
+- Загрузка: фото (jpeg/png/webp/gif, до 5MB), видео (mp4/mov, до 50MB)
+- Город определяется автоматически (Nominatim), юзер может исправить

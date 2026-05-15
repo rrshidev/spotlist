@@ -1,3 +1,5 @@
+import { SpotListResponse } from '@/types';
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 
 function getToken(): string | null {
@@ -52,7 +54,7 @@ export const api = {
   },
 
   spots: {
-list: (params?: { lat?: number; lon?: number; radius?: number; category?: string; city?: string; page?: number }) => {
+    list: (params?: { lat?: number; lon?: number; radius?: number; category?: string; city?: string; obstacle_type?: string; stair_count?: number; page?: number }) => {
       const searchParams = new URLSearchParams();
       
       if (params?.lat) searchParams.set('lat', params.lat.toString());
@@ -60,6 +62,8 @@ list: (params?: { lat?: number; lon?: number; radius?: number; category?: string
       if (params?.radius) searchParams.set('radius', params.radius.toString());
       if (params?.category) searchParams.set('category', params.category);
       if (params?.city) searchParams.set('city', params.city);
+      if (params?.obstacle_type) searchParams.set('obstacle_type', params.obstacle_type);
+      if (params?.stair_count) searchParams.set('stair_count', params.stair_count.toString());
       if (params?.page) searchParams.set('page', params.page.toString());
       searchParams.set('with_liked', 'true');
       
@@ -77,6 +81,9 @@ list: (params?: { lat?: number; lon?: number; radius?: number; category?: string
       category: string;
       media?: string[];
       screenshot?: string;
+      video?: string;
+      status?: string;
+      obstacles?: { type: string; count?: number | null }[];
     }) => request('/spots', { method: 'POST', body: JSON.stringify(data) }),
     update: (id: string, data: Partial<{
       name: string;
@@ -84,10 +91,16 @@ list: (params?: { lat?: number; lon?: number; radius?: number; category?: string
       address: string;
       city: string;
       category: string;
+      latitude: number;
+      longitude: number;
       media: string[];
       screenshot: string;
+      video: string;
+      obstacles: { type: string; count?: number | null }[];
     }>) => request(`/spots/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
     delete: (id: string) => request(`/spots/${id}`, { method: 'DELETE' }),
+    updateStatus: (id: string, status: string) =>
+      request(`/spots/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
   },
 
   comments: {

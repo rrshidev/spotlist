@@ -7,7 +7,7 @@ import { useToast } from '@/contexts/ToastContext';
 import { api } from '@/lib/api';
 import { Spot, Comment } from '@/types';
 import { SpotMap } from '@/components/Map';
-import { MapPin, Clock, User, ArrowLeft, Edit, Trash2, Flag, Image as ImageIcon, Loader2, Send, X, Reply, Heart } from 'lucide-react';
+import { MapPin, Clock, User, ArrowLeft, Edit, Trash2, Flag, Image as ImageIcon, Loader2, Send, X, Reply, Heart, Video, ShieldCheck, ShieldX, ShieldAlert, ShieldQuestion } from 'lucide-react';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 function getAvatarUrl(avatar: string | null | undefined): string {
@@ -41,9 +41,11 @@ export default function SpotPage() {
   const [newComment, setNewComment] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [editingComment, setEditingComment] = useState<string | null>(null);
+  const [updatingStatus, setUpdatingStatus] = useState(false);
   const [editContent, setEditContent] = useState('');
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [commentLikes, setCommentLikes] = useState<Record<string, { liked: boolean; likes_count: number }>>({});
+  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchData() {
@@ -104,6 +106,20 @@ export default function SpotPage() {
     }
   };
 
+  const handleUpdateStatus = async (status: string) => {
+    if (updatingStatus) return;
+    setUpdatingStatus(true);
+    try {
+      const updated = await api.spots.updateStatus(spotId, status) as Spot;
+      setSpot(prev => prev ? { ...prev, status: updated.status, last_status_at: updated.last_status_at } : null);
+      addToast('Статус обновлён', 'success');
+    } catch (error) {
+      addToast(error instanceof Error ? error.message : 'Ошибка', 'error');
+    } finally {
+      setUpdatingStatus(false);
+    }
+  };
+
   const handleLikeSpot = async () => {
     if (!isAuthenticated) {
       addToast('Войди, чтобы ставить лайки', 'error');
@@ -155,7 +171,15 @@ export default function SpotPage() {
         </button>
 
         <div className="bg-[#12121a] border border-[#1f1f2e] rounded-2xl overflow-hidden">
-          {spot.screenshot ? (
+          {spot.media && spot.media.length > 0 ? (
+            <div className="h-48 bg-[#0a0a0f] cursor-pointer" onClick={() => setLightboxUrl(getAvatarUrl(spot.media[0]))}>
+              <img
+                src={getAvatarUrl(spot.media[0])}
+                alt={spot.name}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          ) : spot.screenshot ? (
             <div className="h-48 bg-[#0a0a0f]">
               <img
                 src={getAvatarUrl(spot.screenshot)}
@@ -180,6 +204,15 @@ export default function SpotPage() {
                 <span className={`inline-block mt-2 px-3 py-1 rounded-full bg-gradient-to-r ${spot.category === 'park' ? 'from-green-600 to-green-400' : spot.category === 'street' ? 'from-blue-600 to-blue-400' : spot.category === 'roller' ? 'from-purple-600 to-purple-400' : 'from-orange-600 to-orange-400'} text-xs font-semibold text-white`}>
                   {categoryLabels[spot.category] || spot.category}
                 </span>
+                {spot.obstacles && spot.obstacles.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    {spot.obstacles.map((obs, i) => (
+                      <span key={i} className="px-2 py-0.5 bg-[#0a0a0f] rounded text-xs text-white/70 border border-[#1f1f2e]">
+                        {obs.type}{obs.count ? ` (${obs.count})` : ''}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
               {isOwner && (
                 <div className="flex gap-2">
@@ -204,6 +237,20 @@ export default function SpotPage() {
               <p className="mt-4 text-white/80">{spot.description}</p>
             )}
 
+            {spot.media && spot.media.length > 0 && (
+              <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {spot.media.map((url, i) => (
+                  <div key={i} className="rounded-xl overflow-hidden bg-[#0a0a0f] cursor-pointer" onClick={() => setLightboxUrl(getAvatarUrl(url))}>
+                    <img
+                      src={getAvatarUrl(url)}
+                      alt={`${spot.name} фото ${i + 1}`}
+                      className="w-full h-32 object-cover hover:scale-105 transition-transform"
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+
             <div className="mt-4 flex items-center gap-4">
               <button
                 onClick={handleLikeSpot}
@@ -217,6 +264,75 @@ export default function SpotPage() {
                 <Heart className={`w-5 h-5 ${spotLiked ? 'fill-current' : ''}`} />
                 <span className="font-semibold">{spotLikesCount}</span>
               </button>
+            </div>
+
+            {spot.video && (
+              <div className="mt-4">
+                {spot.video.match(/youtube\.com|youtu\.be|youtube\.com\/shorts/) ? (
+                  <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-black">
+                    <iframe
+                      src={spot.video
+                        .replace(/\/shorts\//, '/embed/')
+                        .replace(/watch\?v=/, 'embed/')
+                        .split('&')[0]
+                      }
+                      className="absolute inset-0 w-full h-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+                ) : (
+                  <video
+                    src={spot.video}
+                    controls
+                    className="w-full rounded-xl max-h-64 bg-black"
+                    preload="metadata"
+                  >
+                    Your browser does not support the video tag.
+                  </video>
+                )}
+              </div>
+            )}
+
+            <div className="mt-4 p-4 bg-[#0a0a0f] rounded-xl">
+              <p className="text-sm text-white/60 mb-2">Статус спота</p>
+              <div className="flex items-center gap-2 mb-3">
+                {spot.status === 'active' ? (
+                  <ShieldCheck className="w-5 h-5 text-green-400" />
+                ) : spot.status === 'bust' ? (
+                  <ShieldX className="w-5 h-5 text-red-400" />
+                ) : spot.status === 'risky' ? (
+                  <ShieldAlert className="w-5 h-5 text-yellow-400" />
+                ) : (
+                  <ShieldQuestion className="w-5 h-5 text-white/40" />
+                )}
+                <span className="text-white text-sm">
+                  {spot.status === 'active' ? 'Всё чисто' : spot.status === 'bust' ? 'Забрикован' : spot.status === 'risky' ? 'Опасно' : 'Неизвестно'}
+                </span>
+              </div>
+              {isAuthenticated && (
+                <div className="flex flex-wrap gap-2">
+                  {(['active', 'risky', 'bust', 'unknown'] as const).map(s => (
+                    <button
+                      key={s}
+                      onClick={() => handleUpdateStatus(s)}
+                      disabled={updatingStatus || spot.status === s}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors disabled:opacity-30 ${
+                        spot.status === s
+                          ? 'bg-[#1f1f2e] text-white'
+                          : 'bg-[#12121a] text-white/60 hover:bg-[#1f1f2e] hover:text-white'
+                      }`}
+                    >
+                      {s === 'active' ? 'Всё чисто' : s === 'bust' ? 'Забрикован' : s === 'risky' ? 'Опасно' : 'Неизвестно'}
+                    </button>
+                  ))}
+                </div>
+              )}
+              {spot.last_status_at && (
+                <p className="text-xs text-white/40 mt-2">
+                  Обновлён: {new Date(spot.last_status_at).toLocaleString('ru-RU')}
+                </p>
+              )}
             </div>
 
             {spot.address && (
@@ -383,6 +499,20 @@ export default function SpotPage() {
           </div>
         </div>
       </div>
+
+      {lightboxUrl && (
+        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4" onClick={() => setLightboxUrl(null)}>
+          <div className="relative max-w-full max-h-full" onClick={e => e.stopPropagation()}>
+            <img src={lightboxUrl} alt="" className="max-w-full max-h-[90vh] object-contain rounded-2xl" />
+            <button
+              onClick={() => setLightboxUrl(null)}
+              className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
