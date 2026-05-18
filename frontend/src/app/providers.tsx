@@ -4,6 +4,7 @@ import { useState, useEffect, ReactNode, Component } from 'react';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { MapProvider } from '@/contexts/MapContext';
 import { ToastProvider } from '@/contexts/ToastContext';
+import { I18nProvider } from '@/contexts/I18nContext';
 import { Navbar } from '@/components/Navbar';
 import { Toaster } from '@/components/Toaster';
 import { Loader2 } from 'lucide-react';
@@ -24,13 +25,13 @@ class ErrorBoundary extends Component<{children: ReactNode}, {hasError: boolean}
       return (
         <div className="flex-1 flex items-center justify-center p-4">
           <div className="text-center">
-            <h1 className="text-xl font-bold text-red-400 mb-2">Что-то пошло не так</h1>
-            <p className="text-white/60">Попробуй перезагрузить страницу</p>
+            <h1 className="text-xl font-bold text-red-400 mb-2">Something went wrong</h1>
+            <p className="text-white/60">Try refreshing the page</p>
             <button
               onClick={() => window.location.reload()}
               className="mt-4 px-4 py-2 bg-[#39ff14] text-black rounded-lg"
             >
-              Перезагрузить
+              Reload
             </button>
           </div>
         </div>
@@ -61,6 +62,7 @@ export function Providers({ children }: { children: ReactNode }) {
 
   return (
     <ErrorBoundary>
+      <I18nProvider>
       <ToastProvider>
         <AuthProvider>
           <MapProvider>
@@ -70,6 +72,7 @@ export function Providers({ children }: { children: ReactNode }) {
           </MapProvider>
         </AuthProvider>
       </ToastProvider>
+      </I18nProvider>
     </ErrorBoundary>
   );
 }

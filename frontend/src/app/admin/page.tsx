@@ -6,9 +6,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { api } from '@/lib/api';
 import { AdminStats, Spot, User, Comment } from '@/types';
+import { useI18n } from '@/contexts/I18nContext';
 import { Shield, Users, MapPin, MessageSquare, AlertTriangle, Check, X, Loader2, ExternalLink } from 'lucide-react';
 
 export default function AdminPage() {
+  const { t } = useI18n();
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const { addToast } = useToast();
   const router = useRouter();
@@ -54,20 +56,20 @@ export default function AdminPage() {
     try {
       await api.admin.approveSpot(spotId);
       setSpots(spots.map(s => s.id === spotId ? { ...s, is_checked: true } : s));
-      addToast('Спот одобрен', 'success');
+      addToast(t('admin.approved'), 'success');
     } catch {
-      addToast('Ошибка', 'error');
+      addToast(t('admin.error'), 'error');
     }
   };
 
   const handleDeleteSpot = async (spotId: string) => {
-    if (!confirm('Удалить спот?')) return;
+    if (!confirm(t('admin.confirmDelete'))) return;
     try {
       await api.admin.deleteSpot(spotId);
       setSpots(spots.filter(s => s.id !== spotId));
-      addToast('Спот удалён', 'success');
+      addToast(t('admin.deleted'), 'success');
     } catch {
-      addToast('Ошибка', 'error');
+      addToast(t('admin.error'), 'error');
     }
   };
 
@@ -76,9 +78,9 @@ export default function AdminPage() {
       await api.admin.toggleBan(userId);
       setUsers(users.map(u => u.id === userId ? { ...u, is_active: !u.is_active } : u));
       const targetUser = users.find(u => u.id === userId);
-      addToast(targetUser?.is_active ? 'Пользователь забанен' : 'Пользователь разбанен', 'success');
+      addToast(targetUser?.is_active ? t('admin.userBanned') : t('admin.userUnbanned'), 'success');
     } catch {
-      addToast('Ошибка', 'error');
+      addToast(t('admin.error'), 'error');
     }
   };
 
@@ -86,9 +88,9 @@ export default function AdminPage() {
     try {
       await api.admin.ignoreReport(commentId);
       setReports(reports.filter(r => r.id !== commentId));
-      addToast('Жалоба обработана', 'success');
+      addToast(t('admin.complaintHandled'), 'success');
     } catch {
-      addToast('Ошибка', 'error');
+      addToast(t('admin.error'), 'error');
     }
   };
 
@@ -112,8 +114,8 @@ export default function AdminPage() {
             <Shield className="w-6 h-6 text-[#ff1493]" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-white">Админ-панель</h1>
-            <p className="text-sm text-white/50">Управление приложением</p>
+            <h1 className="text-2xl font-bold text-white">{t('admin.title')}</h1>
+            <p className="text-sm text-white/50">{t('admin.subtitle')}</p>
           </div>
         </div>
 
@@ -125,7 +127,7 @@ export default function AdminPage() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-white">{stats?.total_spots || 0}</p>
-                <p className="text-xs text-white/60">Всего спотов</p>
+                <p className="text-xs text-white/60">{t('admin.totalSpots')}</p>
               </div>
             </div>
           </div>
@@ -136,7 +138,7 @@ export default function AdminPage() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-white">{stats?.unchecked_spots || 0}</p>
-                <p className="text-xs text-white/60">На проверке</p>
+                <p className="text-xs text-white/60">{t('admin.pending')}</p>
               </div>
             </div>
           </div>
@@ -147,7 +149,7 @@ export default function AdminPage() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-white">{stats?.total_users || 0}</p>
-                <p className="text-xs text-white/60">Пользователей</p>
+                <p className="text-xs text-white/60">{t('admin.users')}</p>
               </div>
             </div>
           </div>
@@ -158,7 +160,7 @@ export default function AdminPage() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-white">{stats?.reported_comments || 0}</p>
-                <p className="text-xs text-white/60">Жалоб</p>
+                <p className="text-xs text-white/60">{t('admin.complaints')}</p>
               </div>
             </div>
           </div>
@@ -174,7 +176,7 @@ export default function AdminPage() {
                   : 'text-white/60 hover:text-white'
               }`}
             >
-              Споты на проверку
+              {t('admin.tabPending')}
               {uncheckedSpots.length > 0 && (
                 <span className="ml-2 px-2 py-0.5 rounded-full bg-yellow-500/20 text-yellow-500 text-xs">
                   {uncheckedSpots.length}
@@ -189,7 +191,7 @@ export default function AdminPage() {
                   : 'text-white/60 hover:text-white'
               }`}
             >
-              Пользователи
+              {t('admin.tabUsers')}
             </button>
             <button
               onClick={() => setActiveTab('reports')}
@@ -199,7 +201,7 @@ export default function AdminPage() {
                   : 'text-white/60 hover:text-white'
               }`}
             >
-              Жалобы
+              {t('admin.tabComplaints')}
               {(stats?.reported_comments || 0) > 0 && (
                 <span className="ml-2 px-2 py-0.5 rounded-full bg-red-500/20 text-red-500 text-xs">
                   {stats?.reported_comments}
@@ -225,7 +227,7 @@ export default function AdminPage() {
                           </a>
                           <p className="text-sm text-white/60">{spot.city}</p>
                           <p className="text-xs text-white/40 mt-1">
-                            от {spot.author_username || 'Неизвестно'} •{' '}
+                            {t('admin.from')} {spot.author_username || t('admin.unknown')} •{' '}
                             {new Date(spot.created_at).toLocaleDateString('ru-RU')}
                           </p>
                         </div>
@@ -233,14 +235,14 @@ export default function AdminPage() {
                           <button
                             onClick={() => handleApproveSpot(spot.id)}
                             className="p-2 rounded-lg bg-green-500/20 text-green-400 hover:bg-green-500/30"
-                            title="Одобрить"
+                            title={t('admin.approve')}
                           >
                             <Check className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => handleDeleteSpot(spot.id)}
                             className="p-2 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30"
-                            title="Удалить"
+                            title={t('admin.delete')}
                           >
                             <X className="w-4 h-4" />
                           </button>
@@ -249,7 +251,7 @@ export default function AdminPage() {
                     </div>
                   ))
                 ) : (
-                  <p className="text-center text-white/40 py-8">Нет спотов на проверку</p>
+                  <p className="text-center text-white/40 py-8">{t('admin.noPending')}</p>
                 )}
               </div>
             )}
@@ -267,12 +269,12 @@ export default function AdminPage() {
                           <span className="font-medium text-white">{u.username}</span>
                           {u.role === 'admin' && (
                             <span className="px-2 py-0.5 rounded-full bg-[#ff1493]/20 text-[#ff1493] text-xs">
-                              Админ
+                              {t('profile.admin')}
                             </span>
                           )}
                           {!u.is_active && (
                             <span className="px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 text-xs">
-                              Забанен
+                              {t('admin.banned')}
                             </span>
                           )}
                         </div>
@@ -288,7 +290,7 @@ export default function AdminPage() {
                             : 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
                         }`}
                       >
-                        {u.is_active ? 'Забанить' : 'Разбанить'}
+                        {u.is_active ? t('admin.ban') : t('admin.unban')}
                       </button>
                     )}
                   </div>
@@ -310,7 +312,7 @@ export default function AdminPage() {
                           </div>
                           <p className="mt-2 text-white/80">{report.content}</p>
                           <p className="text-xs text-white/40 mt-2">
-                            от @{report.reporter_username} • {new Date(report.created_at).toLocaleString('ru-RU')}
+                            {t('admin.reportFrom')} @{report.reporter_username} • {new Date(report.created_at).toLocaleString('ru-RU')}
                           </p>
                         </div>
                         <div className="flex gap-2">
@@ -318,14 +320,14 @@ export default function AdminPage() {
                             href={`/spots/${report.spot_id}`}
                             target="_blank"
                             className="p-2 rounded-lg bg-[#39ff14]/20 text-[#39ff14] hover:bg-[#39ff14]/30"
-                            title="Открыть спот"
+                            title={t('admin.openSpot')}
                           >
                             <ExternalLink className="w-4 h-4" />
                           </a>
                           <button
                             onClick={() => handleIgnoreReport(report.id)}
                             className="p-2 rounded-lg bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30"
-                            title="Игнорировать"
+                            title={t('admin.ignore')}
                           >
                             <Check className="w-4 h-4" />
                           </button>
@@ -334,7 +336,7 @@ export default function AdminPage() {
                     </div>
                   ))
                 ) : (
-                  <p className="text-center text-white/40 py-8">Нет жалоб</p>
+                  <p className="text-center text-white/40 py-8">{t('admin.noComplaints')}</p>
                 )}
               </div>
             )}

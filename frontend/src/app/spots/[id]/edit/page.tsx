@@ -7,6 +7,7 @@ import { useToast } from '@/contexts/ToastContext';
 import { AddSpotMap } from '@/components/Map';
 import { api } from '@/lib/api';
 import { Spot, ObstacleItem } from '@/types';
+import { useI18n } from '@/contexts/I18nContext';
 import { MapPin, Loader2, Upload, X, ArrowLeft, ChevronDown, ChevronUp } from 'lucide-react';
 
 const categories = [
@@ -67,6 +68,7 @@ export default function EditSpotPage() {
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const { isAuthenticated, isLoading: authLoading, user } = useAuth();
+  const { t } = useI18n();
   const { addToast } = useToast();
 
   useEffect(() => {
@@ -97,7 +99,7 @@ export default function EditSpotPage() {
         const stairs = (spot.obstacles || []).find((o: ObstacleItem) => o.type === 'stairs');
         if (stairs?.count) setStairCount(stairs.count);
       } catch {
-        addToast('Спот не найден', 'error');
+        addToast(t('editSpot.notFound'), 'error');
         router.push('/');
       } finally {
         setLoading(false);
@@ -120,7 +122,7 @@ export default function EditSpotPage() {
       const newUrls = urls.map((r: any) => r.url);
       setMedia([...media, ...newUrls]);
     } catch {
-      addToast('Ошибка загрузки', 'error');
+      addToast(t('editSpot.uploadError'), 'error');
     } finally {
       setUploading(false);
     }
@@ -149,7 +151,7 @@ export default function EditSpotPage() {
 
   const handleSubmit = async () => {
     if (!name.trim() || !city.trim() || !latitude || !longitude) {
-      addToast('Заполните обязательные поля', 'error');
+      addToast(t('editSpot.requiredFields'), 'error');
       return;
     }
     setSubmitting(true);
@@ -167,10 +169,10 @@ export default function EditSpotPage() {
         ride_types: rideTypes.length > 0 ? rideTypes : undefined,
         video: video || undefined,
       });
-      addToast('Спот обновлён', 'success');
+      addToast(t('editSpot.saved'), 'success');
       router.push(`/spots/${spotId}`);
     } catch (error) {
-      addToast(error instanceof Error ? error.message : 'Ошибка', 'error');
+      addToast(error instanceof Error ? error.message : t('editSpot.error'), 'error');
     } finally {
       setSubmitting(false);
     }
@@ -192,14 +194,14 @@ export default function EditSpotPage() {
           className="flex items-center gap-2 text-white/60 hover:text-white mb-4"
         >
           <ArrowLeft className="w-4 h-4" />
-          Назад к споту
+          {t('editSpot.back')}
         </button>
 
-        <h1 className="text-2xl font-bold text-white mb-6">Редактирование спота</h1>
+        <h1 className="text-2xl font-bold text-white mb-6">{t('editSpot.title')}</h1>
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm text-white/60 mb-1">Название *</label>
+            <label className="block text-sm text-white/60 mb-1">{t('editSpot.name')} *</label>
             <input
               type="text"
               value={name}
@@ -209,7 +211,7 @@ export default function EditSpotPage() {
           </div>
 
           <div>
-            <label className="block text-sm text-white/60 mb-1">Город *</label>
+            <label className="block text-sm text-white/60 mb-1">{t('editSpot.city')} *</label>
             <input
               type="text"
               value={city}
@@ -219,20 +221,20 @@ export default function EditSpotPage() {
           </div>
 
           <div>
-            <label className="block text-sm text-white/60 mb-1">Категория *</label>
+            <label className="block text-sm text-white/60 mb-1">{t('editSpot.category')} *</label>
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               className="w-full px-4 py-3 bg-[#0a0a0f] border border-[#1f1f2e] rounded-xl text-white"
             >
               {categories.map(c => (
-                <option key={c.value} value={c.value}>{c.label}</option>
+                <option key={c.value} value={c.value}>{t('categories.' + c.value)}</option>
               ))}
             </select>
           </div>
 
           <div>
-            <label className="block text-sm text-white/60 mb-1">Адрес</label>
+            <label className="block text-sm text-white/60 mb-1">{t('editSpot.address')}</label>
             <input
               type="text"
               value={address}
@@ -242,7 +244,7 @@ export default function EditSpotPage() {
           </div>
 
           <div>
-            <label className="block text-sm text-white/60 mb-1">Описание</label>
+            <label className="block text-sm text-white/60 mb-1">{t('editSpot.description')}</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -252,7 +254,7 @@ export default function EditSpotPage() {
           </div>
 
           <div>
-            <label className="block text-sm text-white/60 mb-1">Местоположение (кликните на карте) *</label>
+            <label className="block text-sm text-white/60 mb-1">{t('editSpot.location')} ({t('editSpot.locationHint')}) *</label>
             <div className="h-64 rounded-xl overflow-hidden border border-[#1f1f2e]">
               <AddSpotMap 
                 center={latitude && longitude ? [latitude, longitude] : undefined}
@@ -263,7 +265,7 @@ export default function EditSpotPage() {
               />
             </div>
             {!latitude && (
-              <p className="text-xs text-yellow-400 mt-1">Выберите место на карте</p>
+              <p className="text-xs text-yellow-400 mt-1">{t('editSpot.locationHint')}</p>
             )}
           </div>
 
@@ -273,7 +275,7 @@ export default function EditSpotPage() {
               onClick={() => setShowObstacles(!showObstacles)}
               className="flex items-center justify-between w-full px-4 py-3 bg-[#0a0a0f] border border-[#1f1f2e] rounded-xl text-white/70 hover:text-white transition-colors"
             >
-              <span>Препятствия {obstacles.length > 0 && `(${obstacles.length})`}</span>
+              <span>{t('editSpot.obstacles')} {obstacles.length > 0 && `(${obstacles.length})`}</span>
               {showObstacles ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
             </button>
             {showObstacles && (
@@ -291,13 +293,13 @@ export default function EditSpotPage() {
                       }`}
                     >
                       <span className="text-sm">{obs.icon}</span>
-                      {obs.label}
+                      {t('obstacles.' + obs.value)}
                     </button>
                   ))}
                 </div>
                 {obstacles.find((o) => o.type === 'stairs') && (
                   <div className="flex items-center gap-2 pt-2 border-t border-[#1f1f2e]">
-                    <label className="text-xs text-white/60">Ступеней:</label>
+                    <label className="text-xs text-white/60">{t('obstacles.stairsCount')}:</label>
                     <input
                       type="number"
                       min={1}
@@ -313,7 +315,7 @@ export default function EditSpotPage() {
           </div>
 
           <div>
-            <label className="block text-sm text-white/60 mb-2">Тип катания</label>
+            <label className="block text-sm text-white/60 mb-2">{t('editSpot.rideTypes')}</label>
             <div className="grid grid-cols-2 gap-2">
               {rideTypeOptions.map((rt) => (
                 <button
@@ -326,14 +328,14 @@ export default function EditSpotPage() {
                       : 'bg-[#1f1f2e] text-white/60 hover:text-white border border-transparent'
                   }`}
                 >
-                  {rt.label}
+                  {t('rideTypes.' + rt.value)}
                 </button>
               ))}
             </div>
           </div>
 
           <div>
-            <label className="block text-sm text-white/60 mb-1">Видео (ссылка)</label>
+            <label className="block text-sm text-white/60 mb-1">{t('editSpot.video')}</label>
             <input
               type="text"
               value={video}
@@ -344,7 +346,7 @@ export default function EditSpotPage() {
           </div>
 
           <div>
-            <label className="block text-sm text-white/60 mb-1">Фотографии</label>
+            <label className="block text-sm text-white/60 mb-1">{t('editSpot.photos')}</label>
             <div className="grid grid-cols-3 gap-2">
               {media.map((url, i) => (
                 <div key={i} className="relative">
@@ -376,7 +378,7 @@ export default function EditSpotPage() {
             disabled={submitting}
             className="w-full py-3 rounded-xl bg-[#39ff14] text-black font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
           >
-            {submitting ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'Сохранить'}
+            {submitting ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : t('editSpot.submit')}
           </button>
         </div>
       </div>

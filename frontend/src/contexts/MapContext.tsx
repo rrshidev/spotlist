@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useI18n } from '@/contexts/I18nContext';
 import { api } from '@/lib/api';
 
 interface Location {
@@ -32,6 +33,7 @@ interface MapContextType {
 const MapContext = createContext<MapContextType | undefined>(undefined);
 
 export function MapProvider({ children }: { children: ReactNode }) {
+  const { t } = useI18n();
   const [location, setLocation] = useState<Location | null>(null);
   const [radius, setRadius] = useState(10);
   const [category, setCategory] = useState('');
@@ -70,7 +72,7 @@ export function MapProvider({ children }: { children: ReactNode }) {
         }
       },
       (err) => {
-        setError('Не удалось получить геолокацию');
+        setError(t('common.geoError'));
         setIsLoading(false);
       }
     );

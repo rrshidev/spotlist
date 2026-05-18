@@ -8,6 +8,7 @@ import { useMap } from '@/contexts/MapContext';
 import { AddSpotMap } from '@/components/Map';
 import { api } from '@/lib/api';
 import { ObstacleItem } from '@/types';
+import { useI18n } from '@/contexts/I18nContext';
 import { MapPin, Loader2, Upload, X, ChevronDown, ChevronUp } from 'lucide-react';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
@@ -37,18 +38,6 @@ const obstacleTypes = [
   { value: 'wallride', label: 'Wallride', icon: '⊢' },
 ];
 
-const obstacleLabels: Record<string, string> = {
-  ledge: 'Перила (ledge)',
-  rail: 'Поручень (rail)',
-  stairs: 'Лестница (stairs)',
-  hubba: 'Хабба',
-  gap: 'Гэп',
-  bank: 'Банк',
-  manual_pad: 'Мануал-пад',
-  bowl: 'Боул',
-  quarter_pipe: 'Квотер',
-  wallride: 'Воллрайд',
-};
 
 const rideTypeOptions = [
   { value: 'skateboard', label: '🛹 Скейтборд' },
@@ -88,6 +77,7 @@ export default function NewSpotPageClient() {
   const router = useRouter();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const { addToast } = useToast();
+  const { t } = useI18n();
   const { location } = useMap();
 
   useEffect(() => {
@@ -131,9 +121,9 @@ export default function NewSpotPageClient() {
         urls.push(result.url);
       }
       setMedia([...media, ...urls]);
-      addToast('Фото загружены', 'success');
+      addToast(t('newSpot.photosUploaded'), 'success');
     } catch {
-      addToast('Ошибка загрузки', 'error');
+      addToast(t('newSpot.uploadError'), 'error');
     } finally {
       setUploading(false);
     }
@@ -146,9 +136,9 @@ export default function NewSpotPageClient() {
     try {
       const result = await api.uploads.upload(file) as { url: string };
       setScreenshot(result.url);
-      addToast('Скриншот загружен', 'success');
+      addToast(t('newSpot.screenshotUploaded'), 'success');
     } catch {
-      addToast('Ошибка загрузки скриншота', 'error');
+      addToast(t('newSpot.screenshotUploadError'), 'error');
     } finally {
       setUploading(false);
     }
@@ -182,7 +172,7 @@ export default function NewSpotPageClient() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!latitude || !longitude) {
-      addToast('Укажите местоположение на карте', 'error');
+      addToast(t('newSpot.noLocation'), 'error');
       return;
     }
 
@@ -203,10 +193,10 @@ export default function NewSpotPageClient() {
         video: video || undefined,
         status: status !== 'unknown' ? status : undefined,
       });
-      addToast('Спот успешно добавлен!', 'success');
+      addToast(t('newSpot.success'), 'success');
       router.push('/');
     } catch (error) {
-      addToast(error instanceof Error ? error.message : 'Ошибка создания спота', 'error');
+      addToast(error instanceof Error ? error.message : t('newSpot.createError'), 'error');
     } finally {
       setSubmitting(false);
     }
@@ -224,41 +214,41 @@ export default function NewSpotPageClient() {
     <div className="flex-1 p-4">
       <div className="max-w-4xl mx-auto">
         <div className="bg-[#12121a] border border-[#1f1f2e] rounded-2xl p-6">
-          <h1 className="text-2xl font-bold text-white mb-6">Добавить спот</h1>
+          <h1 className="text-2xl font-bold text-white mb-6">{t('newSpot.title')}</h1>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm text-white/60 mb-2">Название</label>
+                  <label className="block text-sm text-white/60 mb-2">{t('newSpot.name')}</label>
                   <input
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     className="w-full px-4 py-3 bg-[#0a0a0f] border border-[#1f1f2e] rounded-xl text-white placeholder:text-white/40 focus:border-[#39ff14] focus:outline-none"
-                    placeholder="Скейт-парк Центральный"
+                    placeholder={t('newSpot.namePlaceholder')}
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm text-white/60 mb-2">Описание</label>
+                  <label className="block text-sm text-white/60 mb-2">{t('newSpot.description')}</label>
                   <textarea
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     className="w-full px-4 py-3 bg-[#0a0a0f] border border-[#1f1f2e] rounded-xl text-white placeholder:text-white/40 focus:border-[#39ff14] focus:outline-none resize-none h-32"
-                    placeholder="Опиши спот..."
+                    placeholder={t('newSpot.descriptionPlaceholder')}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm text-white/60 mb-2">Статус спота</label>
+                  <label className="block text-sm text-white/60 mb-2">{t('newSpot.status')}</label>
                   <div className="grid grid-cols-2 gap-2">
                     {[
-                      { value: 'active', label: 'Всё чисто', icon: '🟢' },
-                      { value: 'risky', label: 'Опасно', icon: '🟡' },
-                      { value: 'bust', label: 'Забрикован', icon: '🔴' },
-                      { value: 'unknown', label: 'Неизвестно', icon: '⚪' },
+                      { value: 'active', label: t('spotDetail.statusAllGood'), icon: '🟢' },
+                      { value: 'risky', label: t('spotDetail.statusRisky'), icon: '🟡' },
+                      { value: 'bust', label: t('spotDetail.statusBust'), icon: '🔴' },
+                      { value: 'unknown', label: t('spotDetail.statusUnknown'), icon: '⚪' },
                     ].map((s) => (
                       <button
                         key={s.value}
@@ -277,7 +267,7 @@ export default function NewSpotPageClient() {
                 </div>
 
                 <div>
-                  <label className="block text-sm text-white/60 mb-2">Категория</label>
+                  <label className="block text-sm text-white/60 mb-2">{t('newSpot.category')}</label>
                   <div className="grid grid-cols-2 gap-2">
                     {categories.map((cat) => (
                       <button
@@ -290,7 +280,7 @@ export default function NewSpotPageClient() {
                             : 'bg-[#1f1f2e] text-white/70 hover:text-white'
                         }`}
                       >
-                        {cat.label}
+                        {t('categories.' + cat.value)}
                       </button>
                     ))}
                   </div>
@@ -302,7 +292,7 @@ export default function NewSpotPageClient() {
                     onClick={() => setShowObstacles(!showObstacles)}
                     className="flex items-center justify-between w-full px-4 py-3 bg-[#0a0a0f] border border-[#1f1f2e] rounded-xl text-white/70 hover:text-white transition-colors"
                   >
-                    <span>Препятствия {obstacles.length > 0 && `(${obstacles.length})`}</span>
+                    <span>{t('newSpot.obstacles')} {obstacles.length > 0 && `(${obstacles.length})`}</span>
                     {showObstacles ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                   </button>
                   {showObstacles && (
@@ -320,13 +310,13 @@ export default function NewSpotPageClient() {
                             }`}
                           >
                             <span className="text-sm">{obs.icon}</span>
-                            {obs.label}
+                            {t('obstacles.' + obs.value)}
                           </button>
                         ))}
                       </div>
                       {obstacles.find((o) => o.type === 'stairs') && (
                         <div className="flex items-center gap-2 pt-2 border-t border-[#1f1f2e]">
-                          <label className="text-xs text-white/60">Ступеней:</label>
+                          <label className="text-xs text-white/60">{t('obstacles.stairsCount')}:</label>
                           <input
                             type="number"
                             min={1}
@@ -342,7 +332,7 @@ export default function NewSpotPageClient() {
                 </div>
 
                 <div>
-                  <label className="block text-sm text-white/60 mb-2">Тип катания</label>
+                  <label className="block text-sm text-white/60 mb-2">{t('newSpot.rideTypes')}</label>
                   <div className="grid grid-cols-2 gap-2">
                     {rideTypeOptions.map((rt) => (
                       <button
@@ -355,37 +345,37 @@ export default function NewSpotPageClient() {
                             : 'bg-[#1f1f2e] text-white/60 hover:text-white border border-transparent'
                         }`}
                       >
-                        {rt.label}
+                        {t('rideTypes.' + rt.value)}
                       </button>
                     ))}
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm text-white/60 mb-2">Город</label>
+                  <label className="block text-sm text-white/60 mb-2">{t('newSpot.city')}</label>
                   <input
                     type="text"
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
                     className="w-full px-4 py-3 bg-[#0a0a0f] border border-[#1f1f2e] rounded-xl text-white placeholder:text-white/40 focus:border-[#39ff14] focus:outline-none"
-                    placeholder="Москва"
+                    placeholder={t('newSpot.cityPlaceholder')}
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm text-white/60 mb-2">Адрес</label>
+                  <label className="block text-sm text-white/60 mb-2">{t('newSpot.address')}</label>
                   <input
                     type="text"
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
                     className="w-full px-4 py-3 bg-[#0a0a0f] border border-[#1f1f2e] rounded-xl text-white placeholder:text-white/40 focus:border-[#39ff14] focus:outline-none"
-                    placeholder="ул. Примерная, 1"
+                    placeholder={t('newSpot.addressPlaceholder')}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm text-white/60 mb-2">Фото</label>
+                  <label className="block text-sm text-white/60 mb-2">{t('newSpot.photos')}</label>
                   <div className="flex flex-wrap gap-2">
                     {media.map((url, index) => (
                       <div key={index} className="relative w-20 h-20 rounded-lg overflow-hidden">
@@ -419,8 +409,8 @@ export default function NewSpotPageClient() {
 
                 {category === 'routes' && (
                   <div>
-                    <label className="block text-sm text-white/60 mb-2">Скриншот маршрута</label>
-                    <p className="text-xs text-white/40 mb-2">Загрузи скриншот маршрута из приложения</p>
+                    <label className="block text-sm text-white/60 mb-2">{t('newSpot.screenshot')}</label>
+                    <p className="text-xs text-white/40 mb-2">{t('newSpot.screenshotHint')}</p>
                     {screenshot ? (
                       <div className="relative w-full h-32 rounded-xl overflow-hidden">
                         <img src={getMediaUrl(screenshot)} alt="Скриншот маршрута" className="w-full h-full object-cover" />
@@ -439,7 +429,7 @@ export default function NewSpotPageClient() {
                         ) : (
                           <>
                             <Upload className="w-5 h-5 text-white/40" />
-                            <span className="text-sm text-white/40">Загрузить скриншот</span>
+                            <span className="text-sm text-white/40">{t('newSpot.uploadScreenshot')}</span>
                           </>
                         )}
                         <input
@@ -455,28 +445,28 @@ export default function NewSpotPageClient() {
                 )}
 
                 <div>
-                  <label className="block text-sm text-white/60 mb-2">Видео (ссылка)</label>
+                  <label className="block text-sm text-white/60 mb-2">{t('newSpot.video')}</label>
                   <input
                     type="text"
                     value={video}
                     onChange={(e) => setVideo(e.target.value)}
                     className="w-full px-4 py-3 bg-[#0a0a0f] border border-[#1f1f2e] rounded-xl text-white placeholder:text-white/40 focus:border-[#39ff14] focus:outline-none"
-                    placeholder="https://example.com/video.mp4"
+                    placeholder={t('newSpot.videoPlaceholder')}
                   />
                 </div>
               </div>
 
               <div>
                 <label className="block text-sm text-white/60 mb-2">
-                  Местоположение <span className="text-red-400">*</span>
+                  {t('newSpot.location')} <span className="text-red-400">*</span>
                 </label>
                 <div className="rounded-xl overflow-hidden border border-[#1f1f2e]">
                   <AddSpotMap onLocationSelect={handleLocationSelect} center={location ? [location.lat, location.lon] : undefined} />
                 </div>
                 <p className="text-xs text-white/40 mt-2">
                   {latitude && longitude
-                    ? `Координаты: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`
-                    : 'Кликните на карту для выбора местоположения'}
+                    ? `${t('newSpot.coordinates')}: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`
+                    : t('newSpot.locationHint')}
                 </p>
               </div>
             </div>
@@ -487,7 +477,7 @@ export default function NewSpotPageClient() {
               className="w-full py-4 rounded-xl bg-gradient-to-r from-[#39ff14] to-[#00f5ff] text-black font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {submitting && <Loader2 className="w-5 h-5 animate-spin" />}
-              Добавить спот
+              {t('newSpot.submit')}
             </button>
           </form>
         </div>

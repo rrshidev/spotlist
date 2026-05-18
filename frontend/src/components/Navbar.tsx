@@ -2,11 +2,14 @@
 
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
+import { useI18n } from '@/contexts/I18nContext';
 import { MapPin, Plus, User, LogOut, Shield, Menu, X } from 'lucide-react';
 import { useState } from 'react';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 export function Navbar() {
   const { user, isAuthenticated, logout, isLoading } = useAuth();
+  const { t } = useI18n();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
@@ -27,8 +30,9 @@ export function Navbar() {
               href="/"
               className="text-white/70 hover:text-[#39ff14] transition-colors"
             >
-              Карта
+              {t('nav.map')}
             </Link>
+            <LanguageSwitcher />
 
             {isAuthenticated ? (
               <>
@@ -37,7 +41,7 @@ export function Navbar() {
                   className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#39ff14] text-black font-semibold hover:bg-[#32e612] transition-colors"
                 >
                   <Plus className="w-4 h-4" />
-                  Добавить спот
+                  {t('nav.addSpot')}
                 </Link>
                 <Link
                   href="/profile"
@@ -66,13 +70,13 @@ export function Navbar() {
                   href="/login"
                   className="text-white/70 hover:text-white transition-colors"
                 >
-                  Войти
+                  {t('nav.login')}
                 </Link>
                 <Link
                   href="/register"
                   className="px-4 py-2 rounded-lg bg-gradient-to-r from-[#39ff14] to-[#00f5ff] text-black font-semibold hover:opacity-90 transition-opacity"
                 >
-                  Регистрация
+                  {t('nav.register')}
                 </Link>
               </>
             )}
@@ -94,8 +98,9 @@ export function Navbar() {
                 className="text-white/70 hover:text-[#39ff14] transition-colors"
                 onClick={() => setMobileOpen(false)}
               >
-                Карта
+                {t('nav.map')}
               </Link>
+              <LanguageSwitcher />
               {isAuthenticated ? (
                 <>
                   <Link
@@ -111,7 +116,7 @@ export function Navbar() {
                     className="text-white/70 hover:text-white"
                     onClick={() => setMobileOpen(false)}
                   >
-                    Профиль
+                    {t('nav.profile')}
                   </Link>
                   {user?.role?.toLowerCase() === 'admin' && (
                     <Link
@@ -119,14 +124,14 @@ export function Navbar() {
                       className="text-[#ff1493]"
                       onClick={() => setMobileOpen(false)}
                     >
-                      Админка
+                      {t('nav.admin')}
                     </Link>
                   )}
                   <button
                     onClick={() => { logout(); setMobileOpen(false); }}
                     className="text-left text-red-400"
                   >
-                    Выйти
+                    {t('nav.logout')}
                   </button>
                 </>
               ) : (
@@ -136,14 +141,14 @@ export function Navbar() {
                     className="text-white/70"
                     onClick={() => setMobileOpen(false)}
                   >
-                    Войти
+                    {t('nav.login')}
                   </Link>
                   <Link
                     href="/register"
                     className="px-4 py-2 rounded-lg bg-gradient-to-r from-[#39ff14] to-[#00f5ff] text-black font-semibold w-fit"
                     onClick={() => setMobileOpen(false)}
                   >
-                    Регистрация
+                    {t('nav.register')}
                   </Link>
                 </>
               )}

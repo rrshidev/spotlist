@@ -3,6 +3,7 @@
 import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet';
 import { divIcon } from 'leaflet';
 import { useRouter } from 'next/navigation';
+import { useI18n } from '@/contexts/I18nContext';
 import { Spot } from '@/types';
 import 'leaflet/dist/leaflet.css';
 
@@ -30,13 +31,6 @@ const categoryColors: Record<string, string> = {
   street: '#22c55e',
   roller: '#3b82f6',
   routes: '#f97316',
-};
-
-const categoryLabels: Record<string, string> = {
-  park: 'Парк',
-  street: 'Стрит',
-  roller: 'Роллер-дром',
-  routes: 'Маршруты',
 };
 
 function createSpotIcon(spot: Spot) {
@@ -74,6 +68,7 @@ function MapClickHandler({ onClick }: { onClick: (lat: number, lon: number) => v
 
 export function SpotMap({ spots, center = [55.7558, 37.6173], zoom = 13 }: SpotMapProps) {
   const router = useRouter();
+  const { t } = useI18n();
 
   return (
     <MapContainer
@@ -109,11 +104,11 @@ export function SpotMap({ spots, center = [55.7558, 37.6173], zoom = 13 }: SpotM
                   backgroundColor: categoryColors[spot.category] || '#6b7280',
                   color: '#fff',
                 }}>
-                  {categoryLabels[spot.category] || spot.category}
+                  {t('categories.' + spot.category) || spot.category}
                 </span>
                 <span className="text-xs text-white/50">{spot.city}</span>
                 {spot.distance && (
-                  <span className="text-xs text-white/50">{spot.distance} км</span>
+                  <span className="text-xs text-white/50">{spot.distance} {t('map.km')}</span>
                 )}
               </div>
               {spot.description && (
@@ -124,7 +119,7 @@ export function SpotMap({ spots, center = [55.7558, 37.6173], zoom = 13 }: SpotM
                 className="w-full py-2 rounded-lg text-sm font-semibold text-black transition-colors"
                 style={{ backgroundColor: categoryColors[spot.category] || '#6b7280' }}
               >
-                Подробнее
+                {t('map.details')}
               </button>
             </div>
           </Popup>

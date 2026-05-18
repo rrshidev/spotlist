@@ -7,6 +7,7 @@ import { useToast } from '@/contexts/ToastContext';
 import { api } from '@/lib/api';
 import { Spot, User } from '@/types';
 import { SpotCard } from '@/components/SpotCard';
+import { useI18n } from '@/contexts/I18nContext';
 import { User as UserIcon, MapPin, Loader2, LogOut, Shield, Edit, Camera, MapPinned, Activity, FileText, Save, X } from 'lucide-react';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
@@ -20,6 +21,7 @@ function getAvatarUrl(avatar: string | null | undefined): string {
 }
 
 export default function ProfilePage() {
+  const { t } = useI18n();
   const { user, isAuthenticated, isLoading: authLoading, logout, setUser } = useAuth();
   const router = useRouter();
   const { addToast } = useToast();
@@ -79,9 +81,9 @@ export default function ProfilePage() {
       const result = await api.uploads.upload(file) as { url: string };
       const updated = await api.auth.update({ avatar: result.url }) as User;
       setUser(updated);
-      addToast('Аватар обновлён', 'success');
+      addToast(t('profile.avatarUpdated'), 'success');
     } catch (error) {
-      addToast('Ошибка загрузки', 'error');
+      addToast(t('profile.uploadError'), 'error');
     } finally {
       setSaving(false);
     }
@@ -93,9 +95,9 @@ export default function ProfilePage() {
       const updated = await api.auth.update(formData) as User;
       setUser(updated);
       setEditing(false);
-      addToast('Профиль обновлён', 'success');
+      addToast(t('profile.profileUpdated'), 'success');
     } catch (error) {
-      addToast(error instanceof Error ? error.message : 'Ошибка', 'error');
+      addToast(error instanceof Error ? error.message : t('profile.error'), 'error');
     } finally {
       setSaving(false);
     }
@@ -133,7 +135,7 @@ export default function ProfilePage() {
                 <button
                   onClick={handleAvatarClick}
                   className="absolute bottom-0 right-0 p-2 rounded-full bg-[#39ff14] text-black hover:opacity-90 transition-opacity"
-                  title="Сменить аватар"
+                  title={t('profile.changeAvatar')}
                 >
                   <Camera className="w-4 h-4" />
                 </button>
@@ -153,14 +155,14 @@ export default function ProfilePage() {
                       value={formData.username}
                       onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                       className="px-3 py-2 bg-[#0a0a0f] border border-[#1f1f2e] rounded-lg text-white"
-                      placeholder="Имя"
+                      placeholder={t('profile.placeholderName')}
                     />
                     <input
                       type="text"
                       value={formData.city}
                       onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                       className="px-3 py-2 bg-[#0a0a0f] border border-[#1f1f2e] rounded-lg text-white block w-full"
-                      placeholder="Город"
+                      placeholder={t('profile.placeholderCity')}
                     />
                   </div>
                 ) : (
@@ -179,11 +181,11 @@ export default function ProfilePage() {
                   {user.role === 'admin' && (
                     <span className="px-2 py-0.5 rounded-full bg-[#ff1493]/20 text-[#ff1493] text-xs font-medium flex items-center gap-1">
                       <Shield className="w-3 h-3" />
-                      Админ
+                      {t('profile.admin')}
                     </span>
                   )}
                   <span className="text-xs text-white/40">
-                    с {new Date(user.created_at).toLocaleDateString('ru-RU')}
+                    {t('profile.memberSince')} {new Date(user.created_at).toLocaleDateString('ru-RU')}
                   </span>
                 </div>
               </div>
@@ -210,7 +212,7 @@ export default function ProfilePage() {
                   <button
                     onClick={() => setEditing(true)}
                     className="p-2 rounded-lg bg-[#39ff14]/20 text-[#39ff14] hover:bg-[#39ff14]/30 transition-colors"
-                    title="Редактировать профиль"
+                    title={t('profile.editProfile')}
                   >
                     <Edit className="w-5 h-5" />
                   </button>
@@ -228,29 +230,29 @@ export default function ProfilePage() {
           {editing && (
             <div className="mt-4 space-y-3 pt-4 border-t border-[#1f1f2e]">
               <div>
-                <label className="text-sm text-white/60 flex items-center gap-1 mb-1">
-                  <Activity className="w-4 h-4" />
-                  Стиль катания
-                </label>
+                  <label className="text-sm text-white/60 flex items-center gap-1 mb-1">
+                    <Activity className="w-4 h-4" />
+                    {t('profile.ridingStyle')}
+                  </label>
                 <input
                   type="text"
                   value={formData.skating_style}
                   onChange={(e) => setFormData({ ...formData, skating_style: e.target.value })}
                   className="w-full px-3 py-2 bg-[#0a0a0f] border border-[#1f1f2e] rounded-lg text-white"
-                  placeholder="Например: агрессив, стрит, парк"
+                  placeholder={t('profile.ridingStylePlaceholder')}
                 />
               </div>
               <div>
-                <label className="text-sm text-white/60 flex items-center gap-1 mb-1">
-                  <FileText className="w-4 h-4" />
-                  О себе
-                </label>
+                  <label className="text-sm text-white/60 flex items-center gap-1 mb-1">
+                    <FileText className="w-4 h-4" />
+                    {t('profile.about')}
+                  </label>
                 <textarea
                   value={formData.bio}
                   onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
                   className="w-full px-3 py-2 bg-[#0a0a0f] border border-[#1f1f2e] rounded-lg text-white resize-none"
                   rows={3}
-                  placeholder="Расскажи о себе..."
+                  placeholder={t('profile.aboutPlaceholder')}
                 />
               </div>
             </div>
@@ -273,17 +275,17 @@ export default function ProfilePage() {
           <div className="grid grid-cols-3 gap-4 mt-6">
             <div className="p-4 bg-[#0a0a0f] rounded-xl text-center">
               <p className="text-2xl font-bold text-[#39ff14]">{userSpots.length}</p>
-              <p className="text-xs text-white/60">Спотов</p>
+              <p className="text-xs text-white/60">{t('profile.spots')}</p>
             </div>
             <div className="p-4 bg-[#0a0a0f] rounded-xl text-center">
               <p className="text-2xl font-bold text-[#00f5ff]">{userSpots.reduce((acc, s) => acc + (s.likes_count || 0), 0)}</p>
-              <p className="text-xs text-white/60">Лайков</p>
+              <p className="text-xs text-white/60">{t('profile.likes')}</p>
             </div>
             <div className="p-4 bg-[#0a0a0f] rounded-xl text-center">
               <p className="text-2xl font-bold text-[#ff1493]">
                 {userSpots.filter(s => s.is_checked).length}/{userSpots.length}
               </p>
-              <p className="text-xs text-white/60">Проверено</p>
+              <p className="text-xs text-white/60">{t('profile.verified')}</p>
             </div>
           </div>
         </div>
@@ -298,7 +300,7 @@ export default function ProfilePage() {
                   : 'text-white/60 hover:text-white'
               }`}
             >
-              Мои споты
+              {t('profile.mySpots')}
             </button>
             <button
               onClick={() => setActiveTab('comments')}
@@ -308,7 +310,7 @@ export default function ProfilePage() {
                   : 'text-white/60 hover:text-white'
               }`}
             >
-              Комментарии
+              {t('profile.tabComments')}
             </button>
             <button
               onClick={() => setActiveTab('settings')}
@@ -318,7 +320,7 @@ export default function ProfilePage() {
                   : 'text-white/60 hover:text-white'
               }`}
             >
-              Настройки
+              {t('profile.settings')}
             </button>
           </div>
 
@@ -333,18 +335,18 @@ export default function ProfilePage() {
               ) : (
                 <div className="text-center py-12">
                   <MapPin className="w-12 h-12 text-white/20 mx-auto mb-4" />
-                  <p className="text-white/60">У тебя пока нет спотов</p>
+                  <p className="text-white/60">{t('profile.noSpots')}</p>
                   <button
                     onClick={() => router.push('/spots/new')}
                     className="mt-4 px-4 py-2 rounded-lg bg-[#39ff14] text-black font-medium"
                   >
-                    Добавить спот
+                    {t('profile.addSpot')}
                   </button>
                 </div>
               )
             ) : activeTab === 'comments' ? (
               <div className="text-center py-12">
-                <p className="text-white/60">Комментарии скоро появятся</p>
+                <p className="text-white/60">{t('profile.commentsSoon')}</p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -352,7 +354,7 @@ export default function ProfilePage() {
                   onClick={logout}
                   className="w-full p-4 bg-red-500/10 rounded-xl text-left flex items-center justify-between text-red-400 hover:bg-red-500/20 transition-colors"
                 >
-                  <span>Выйти из аккаунта</span>
+                  <span>{t('profile.logout')}</span>
                   <LogOut className="w-5 h-5" />
                 </button>
               </div>

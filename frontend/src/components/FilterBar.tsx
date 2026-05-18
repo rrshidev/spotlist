@@ -1,6 +1,7 @@
 'use client';
 
 import { useMap } from '@/contexts/MapContext';
+import { useI18n } from '@/contexts/I18nContext';
 import { Filter, Map as MapIcon, List, MapPin } from 'lucide-react';
 
 interface FilterBarProps {
@@ -8,63 +9,66 @@ interface FilterBarProps {
   onViewModeChange: (mode: 'list' | 'map') => void;
 }
 
-const categories = [
-  { value: '', label: 'Все' },
-  { value: 'park', label: 'Парк' },
-  { value: 'street', label: 'Стрит' },
-  { value: 'roller', label: 'Роллер-дром' },
-  { value: 'routes', label: 'Маршруты' },
-];
 
-const radiusOptions = [
-  { value: 1, label: '1 км' },
-  { value: 5, label: '5 км' },
-  { value: 10, label: '10 км' },
-  { value: 25, label: '25 км' },
-  { value: 50, label: '50 км' },
-];
-
-const obstacleTypes = [
-  { value: '', label: 'Все препятствия' },
-  { value: 'ledge', label: '▬ Ледж' },
-  { value: 'rail', label: '═ Рейл' },
-  { value: 'stairs', label: '⊞ Лестница' },
-  { value: 'hubba', label: '╱ Хабба' },
-  { value: 'gap', label: '⤉ Гэп' },
-  { value: 'bank', label: '╲ Банк' },
-  { value: 'manual_pad', label: '▭ Мануал-пад' },
-  { value: 'bowl', label: '○ Боул' },
-  { value: 'quarter_pipe', label: '⌒ Квотер' },
-  { value: 'wallride', label: '⊢ Валлрайд' },
-];
-
-const rideTypes = [
-  { value: '', label: 'Всё' },
-  { value: 'skateboard', label: '🛹 Скейт' },
-  { value: 'rollerblades', label: '🛼 Ролики' },
-  { value: 'bmx', label: '🚲 BMX' },
-  { value: 'scooter', label: '🛴 Самокат' },
-  { value: 'longboard', label: '🛹 Лонгборд' },
-  { value: 'surfskate', label: '🛹 Сёрфскейт' },
-  { value: 'mountainboard', label: '🛹 Маунтинборд' },
-  { value: 'motorcycle', label: '🏍️ Мото/Эндуро' },
-  { value: 'sup', label: '🏄 САП' },
-  { value: 'kayak', label: '🛶 Каяк' },
-  { value: 'cycling', label: '🚲 Вело' },
-  { value: 'running', label: '🏃 Бег' },
-  { value: 'hiking', label: '🥾 Поход' },
-  { value: 'other', label: '⭐ Другое' },
-];
 
 export function FilterBar({ viewMode, onViewModeChange }: FilterBarProps) {
   const { category, setCategory, radius, setRadius, city, setCity, obstacleType, setObstacleType, stairCount, setStairCount, rideType, setRideType } = useMap();
+  const { t } = useI18n();
+
+  const categories = [
+    { value: '', label: t('filter.all') },
+    { value: 'park', label: t('categories.park') },
+    { value: 'street', label: t('categories.street') },
+    { value: 'roller', label: t('categories.roller') },
+    { value: 'routes', label: t('categories.routes') },
+  ];
+
+  const radiusOptions = [
+    { value: 1, label: t('filter.radius.1') },
+    { value: 5, label: t('filter.radius.5') },
+    { value: 10, label: t('filter.radius.10') },
+    { value: 25, label: t('filter.radius.25') },
+    { value: 50, label: t('filter.radius.50') },
+  ];
+
+  const obstacleTypes = [
+    { value: '', label: t('filter.allObstacles') },
+    { value: 'ledge', label: `▬ ${t('obstacles.ledge')}` },
+    { value: 'rail', label: `═ ${t('obstacles.rail')}` },
+    { value: 'stairs', label: `⊞ ${t('obstacles.stairs')}` },
+    { value: 'hubba', label: `╱ ${t('obstacles.hubba')}` },
+    { value: 'gap', label: `⤉ ${t('obstacles.gap')}` },
+    { value: 'bank', label: `╲ ${t('obstacles.bank')}` },
+    { value: 'manual_pad', label: `▭ ${t('obstacles.manual_pad')}` },
+    { value: 'bowl', label: `○ ${t('obstacles.bowl')}` },
+    { value: 'quarter_pipe', label: `⌒ ${t('obstacles.quarter_pipe')}` },
+    { value: 'wallride', label: `⊢ ${t('obstacles.wallride')}` },
+  ];
+
+  const rideTypes = [
+    { value: '', label: t('filter.allRideTypes') },
+    { value: 'skateboard', label: `🛹 ${t('rideTypesShort.skateboard')}` },
+    { value: 'rollerblades', label: `🛼 ${t('rideTypesShort.rollerblades')}` },
+    { value: 'bmx', label: `🚲 ${t('rideTypesShort.bmx')}` },
+    { value: 'scooter', label: `🛴 ${t('rideTypesShort.scooter')}` },
+    { value: 'longboard', label: `🛹 ${t('rideTypesShort.longboard')}` },
+    { value: 'surfskate', label: `🛹 ${t('rideTypesShort.surfskate')}` },
+    { value: 'mountainboard', label: `🛹 ${t('rideTypesShort.mountainboard')}` },
+    { value: 'motorcycle', label: `🏍️ ${t('rideTypesShort.motorcycle')}` },
+    { value: 'sup', label: `🏄 ${t('rideTypesShort.sup')}` },
+    { value: 'kayak', label: `🛶 ${t('rideTypesShort.kayak')}` },
+    { value: 'cycling', label: `🚲 ${t('rideTypesShort.cycling')}` },
+    { value: 'running', label: `🏃 ${t('rideTypesShort.running')}` },
+    { value: 'hiking', label: `🥾 ${t('rideTypesShort.hiking')}` },
+    { value: 'other', label: `⭐ ${t('rideTypesShort.other')}` },
+  ];
 
   return (
     <div className="bg-[#12121a] border border-[#1f1f2e] rounded-xl p-4">
       <div className="flex flex-wrap items-center gap-4">
         <div className="flex items-center gap-2">
           <Filter className="w-4 h-4 text-[#39ff14]" />
-          <span className="text-sm text-white/60">Фильтры:</span>
+          <span className="text-sm text-white/60">{t('filter.title')}</span>
         </div>
 
         <div className="flex flex-wrap gap-2">
@@ -115,7 +119,7 @@ export function FilterBar({ viewMode, onViewModeChange }: FilterBarProps) {
               max="50"
               value={stairCount}
               onChange={(e) => setStairCount(e.target.value)}
-              placeholder="Кол-во ступеней"
+              placeholder={t('filter.stairsCount')}
               className="w-36 px-3 py-1.5 rounded-lg bg-[#1f1f2e] text-white text-sm border-none outline-none placeholder:text-white/40"
             />
           )}
@@ -137,7 +141,7 @@ export function FilterBar({ viewMode, onViewModeChange }: FilterBarProps) {
 
         <div className="w-48 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#1f1f2e] text-white/60 text-sm">
           <MapPin className="w-4 h-4 text-[#39ff14]" />
-          {city || 'Все города'}
+          {city || t('filter.allCities')}
         </div>
 
         <div className="flex items-center gap-2 bg-[#1f1f2e] rounded-lg p-1">
@@ -166,12 +170,12 @@ export function FilterBar({ viewMode, onViewModeChange }: FilterBarProps) {
 
       {city && (
         <div className="mt-3 pt-3 border-t border-[#1f1f2e] flex items-center gap-2">
-          <span className="text-sm text-[#39ff14]">Город: {city}</span>
+          <span className="text-sm text-[#39ff14]">{t('filter.city')} {city}</span>
           <button
             onClick={() => setCity('')}
             className="text-xs text-white/40 hover:text-white ml-2"
           >
-            сбросить
+            {t('filter.reset')}
           </button>
         </div>
       )}

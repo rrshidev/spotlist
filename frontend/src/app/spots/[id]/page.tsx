@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
+import { useI18n } from '@/contexts/I18nContext';
 import { api } from '@/lib/api';
 import { Spot, Comment } from '@/types';
 import { SpotMap } from '@/components/Map';
@@ -18,19 +19,13 @@ function getAvatarUrl(avatar: string | null | undefined): string {
   return baseUrl + av;
 }
 
-const categoryLabels: Record<string, string> = {
-  park: 'Парк',
-  street: 'Стрит',
-  roller: 'Роллер-дром',
-  routes: 'Маршруты',
-};
-
 export default function SpotPage() {
   const params = useParams();
   const router = useRouter();
   const spotId = params.id as string;
   const { user, isAuthenticated } = useAuth();
   const { addToast } = useToast();
+  const { t } = useI18n();
 
   const [spot, setSpot] = useState<Spot | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
@@ -61,7 +56,7 @@ export default function SpotPage() {
         setSpotLikesCount(s.likes_count || 0);
         setComments(commentsData as Comment[]);
       } catch {
-        addToast('Спот не найден', 'error');
+        addToast(t('spotDetail.notFound'), 'error');
         router.push('/');
       } finally {
         setLoading(false);
@@ -78,31 +73,31 @@ export default function SpotPage() {
       setComments([comment, ...comments]);
       setNewComment('');
       setReplyingTo(null);
-      addToast('Комментарий добавлен', 'success');
+      addToast(t('spotDetail.commentAdded'), 'success');
     } catch (error) {
-      addToast(error instanceof Error ? error.message : 'Ошибка', 'error');
+      addToast(error instanceof Error ? error.message : t('spotDetail.error'), 'error');
     } finally {
       setSubmitting(false);
     }
   };
 
   const handleDeleteSpot = async () => {
-    if (!confirm('Удалить спот?')) return;
+    if (!confirm(t('spotDetail.confirmDeleteSpot'))) return;
     try {
       await api.spots.delete(spotId);
-      addToast('Спот удалён', 'success');
+      addToast(t('spotDetail.spotDeleted'), 'success');
       router.push('/');
     } catch (error) {
-      addToast(error instanceof Error ? error.message : 'Ошибка', 'error');
+      addToast(error instanceof Error ? error.message : t('spotDetail.error'), 'error');
     }
   };
 
   const handleReportComment = async (commentId: string) => {
     try {
-      await api.comments.report(commentId, 'Спам/нарушение');
-      addToast('Жалоба отправлена', 'success');
+      await api.comments.report(commentId, t('spotDetail.reportReason'));
+      addToast(t('spotDetail.reportSent'), 'success');
     } catch (error) {
-      addToast(error instanceof Error ? error.message : 'Ошибка', 'error');
+      addToast(error instanceof Error ? error.message : t('spotDetail.error'), 'error');
     }
   };
 
@@ -112,9 +107,9 @@ export default function SpotPage() {
     try {
       const updated = await api.spots.updateStatus(spotId, status) as Spot;
       setSpot(prev => prev ? { ...prev, status: updated.status, last_status_at: updated.last_status_at } : null);
-      addToast('Статус обновлён', 'success');
+      addToast(t('spotDetail.statusUpdatedMsg'), 'success');
     } catch (error) {
-      addToast(error instanceof Error ? error.message : 'Ошибка', 'error');
+      addToast(error instanceof Error ? error.message : t('spotDetail.error'), 'error');
     } finally {
       setUpdatingStatus(false);
     }
@@ -122,7 +117,7 @@ export default function SpotPage() {
 
   const handleLikeSpot = async () => {
     if (!isAuthenticated) {
-      addToast('Войди, чтобы ставить лайки', 'error');
+      addToast(t('spotDetail.loginToLike'), 'error');
       return;
     }
     if (isSpotLiking) return;
@@ -132,7 +127,7 @@ export default function SpotPage() {
       setSpotLiked(!spotLiked);
       setSpotLikesCount(prev => spotLiked ? prev - 1 : prev + 1);
     } catch {
-      addToast('Ошибка при лайке', 'error');
+      addToast(t('spotDetail.likeError'), 'error');
     } finally {
       setIsSpotLiking(false);
     }
@@ -143,7 +138,7 @@ export default function SpotPage() {
       const result = await api.likes.toggleComment(commentId) as { liked: boolean; likes_count: number };
       setCommentLikes({ ...commentLikes, [commentId]: result });
     } catch (error) {
-      addToast(error instanceof Error ? error.message : 'Ошибка', 'error');
+      addToast(error instanceof Error ? error.message : t('spotDetail.error'), 'error');
     }
   };
 
@@ -167,7 +162,7 @@ export default function SpotPage() {
           className="flex items-center gap-2 text-white/60 hover:text-white mb-4"
         >
           <ArrowLeft className="w-4 h-4" />
-          Назад
+          {t('spotDetail.back')}
         </button>
 
         <div className="bg-[#12121a] border border-[#1f1f2e] rounded-2xl overflow-hidden">
@@ -202,7 +197,7 @@ export default function SpotPage() {
                   {spot.city}
                 </p>
                 <span className={`inline-block mt-2 px-3 py-1 rounded-full bg-gradient-to-r ${spot.category === 'park' ? 'from-green-600 to-green-400' : spot.category === 'street' ? 'from-blue-600 to-blue-400' : spot.category === 'roller' ? 'from-purple-600 to-purple-400' : 'from-orange-600 to-orange-400'} text-xs font-semibold text-white`}>
-                  {categoryLabels[spot.category] || spot.category}
+                  {t('categories.' + spot.category) || spot.category}
                 </span>
                 {spot.obstacles && spot.obstacles.length > 0 && (
                   <div className="flex flex-wrap gap-1.5 mt-2">
@@ -219,7 +214,7 @@ export default function SpotPage() {
                   <button
                     onClick={() => router.push(`/spots/${spotId}/edit`)}
                     className="p-2 rounded-lg bg-[#39ff14]/20 text-[#39ff14] hover:bg-[#39ff14]/30 transition-colors"
-                    title="Редактировать"
+                    title={t('spotDetail.edit')}
                   >
                     <Edit className="w-4 h-4" />
                   </button>
@@ -239,11 +234,11 @@ export default function SpotPage() {
 
             {spot.ride_types && spot.ride_types.length > 0 && (
               <div className="mt-4">
-                <p className="text-sm text-white/60 mb-2">Тип катания</p>
+                <p className="text-sm text-white/60 mb-2">{t('spotDetail.rideTypes')}</p>
                 <div className="flex flex-wrap gap-2">
                   {spot.ride_types.map((rt) => (
                     <span key={rt} className="px-3 py-1 rounded-lg bg-[#0a0a0f] border border-[#1f1f2e] text-sm text-white/80">
-                      {rt === 'skateboard' ? '🛹 Скейтборд' : rt === 'rollerblades' ? '🛼 Ролики' : rt === 'bmx' ? '🚲 BMX' : rt === 'scooter' ? '🛴 Самокат' : rt === 'longboard' ? '🛹 Лонгборд' : rt === 'surfskate' ? '🛹 Сёрфскейт' : rt === 'mountainboard' ? '🛹 Маунтинборд' : rt === 'motorcycle' ? '🏍️ Мото/Эндуро' : rt === 'sup' ? '🏄 САП' : rt === 'kayak' ? '🛶 Каяк' : rt === 'cycling' ? '🚲 Велосипед' : rt === 'running' ? '🏃 Бег' : rt === 'hiking' ? '🥾 Поход' : '⭐ Другое'}
+                      {t('rideTypes.' + rt)}
                     </span>
                   ))}
                 </div>
@@ -308,7 +303,7 @@ export default function SpotPage() {
             )}
 
             <div className="mt-4 p-4 bg-[#0a0a0f] rounded-xl">
-              <p className="text-sm text-white/60 mb-2">Статус спота</p>
+              <p className="text-sm text-white/60 mb-2">{t('spotDetail.status')}</p>
               <div className="flex items-center gap-2 mb-3">
                 {spot.status === 'active' ? (
                   <ShieldCheck className="w-5 h-5 text-green-400" />
@@ -320,7 +315,7 @@ export default function SpotPage() {
                   <ShieldQuestion className="w-5 h-5 text-white/40" />
                 )}
                 <span className="text-white text-sm">
-                  {spot.status === 'active' ? 'Всё чисто' : spot.status === 'bust' ? 'Забрикован' : spot.status === 'risky' ? 'Опасно' : 'Неизвестно'}
+                  {t(spot.status === 'active' ? 'spotDetail.statusAllGood' : spot.status === 'bust' ? 'spotDetail.statusBust' : spot.status === 'risky' ? 'spotDetail.statusRisky' : 'spotDetail.statusUnknown')}
                 </span>
               </div>
               {isAuthenticated && (
@@ -336,29 +331,29 @@ export default function SpotPage() {
                           : 'bg-[#12121a] text-white/60 hover:bg-[#1f1f2e] hover:text-white'
                       }`}
                     >
-                      {s === 'active' ? 'Всё чисто' : s === 'bust' ? 'Забрикован' : s === 'risky' ? 'Опасно' : 'Неизвестно'}
+                      {t(s === 'active' ? 'spotDetail.statusAllGood' : s === 'bust' ? 'spotDetail.statusBust' : s === 'risky' ? 'spotDetail.statusRisky' : 'spotDetail.statusUnknown')}
                     </button>
                   ))}
                 </div>
               )}
               {spot.last_status_at && (
                 <p className="text-xs text-white/40 mt-2">
-                  Обновлён: {new Date(spot.last_status_at).toLocaleString('ru-RU')}
+                  {t('spotDetail.statusUpdated')}: {new Date(spot.last_status_at).toLocaleString('ru-RU')}
                 </p>
               )}
             </div>
 
             {spot.address && (
               <div className="mt-4 p-4 bg-[#0a0a0f] rounded-xl">
-                <p className="text-sm text-white/60">Адрес</p>
+                <p className="text-sm text-white/60">{t('spotDetail.address')}</p>
                 <p className="text-white">{spot.address}</p>
               </div>
             )}
 
             <p className="text-xs text-white/40 mt-2">
-              Добавил: {spot.author_username || 'Неизвестно'}
+              {t('spotDetail.addedBy')}: {spot.author_username || t('spotDetail.unknown')}
               {!spot.is_checked && (
-                <span className="ml-2 text-yellow-400">(на проверке)</span>
+                <span className="ml-2 text-yellow-400">{t('spotDetail.unchecked')}</span>
               )}
             </p>
           </div>
@@ -369,13 +364,13 @@ export default function SpotPage() {
         </div>
 
         <div className="bg-[#12121a] border border-[#1f1f2e] rounded-2xl p-6 mt-4">
-          <h2 className="text-lg font-bold text-white mb-4">Комментарии ({comments.length})</h2>
+          <h2 className="text-lg font-bold text-white mb-4">{t('spotDetail.comments')} ({comments.length})</h2>
 
           {isAuthenticated && (
             <div className="flex gap-2 mb-6">
               {replyingTo && (
                 <div className="flex items-center gap-2 text-sm text-[#39ff14] bg-[#39ff14]/10 px-3 py-1 rounded-lg">
-                  <span>Ответ {comments.find(c => c.id === replyingTo)?.username}</span>
+                  <span>{t('spotDetail.replyTo')} {comments.find(c => c.id === replyingTo)?.username}</span>
                   <button onClick={() => { setReplyingTo(null); setNewComment(''); }}>
                     <X className="w-4 h-4" />
                   </button>
@@ -385,7 +380,7 @@ export default function SpotPage() {
                 type="text"
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
-                placeholder={replyingTo ? "Написать ответ..." : "Написать комментарий..."}
+                placeholder={replyingTo ? t('spotDetail.replyPlaceholder') : t('spotDetail.commentPlaceholder')}
                 className="flex-1 px-4 py-3 bg-[#0a0a0f] border border-[#1f1f2e] rounded-xl text-white placeholder:text-white/40 focus:border-[#39ff14] focus:outline-none"
                 onKeyDown={(e) => e.key === 'Enter' && handleAddComment()}
               />
@@ -415,7 +410,7 @@ export default function SpotPage() {
                       <span className="font-medium text-white">{comment.username}</span>
                       <span className="text-xs text-white/40 ml-2">
                         {new Date(comment.created_at).toLocaleString('ru-RU')}
-                        {comment.updated_at && ' (ред.)'}
+                        {comment.updated_at && t('spotDetail.edited')}
                       </span>
                     </div>
                   </div>
@@ -443,14 +438,14 @@ export default function SpotPage() {
                                 setNewComment(`@${comment.username} `);
                               }}
                               className="p-1.5 rounded-lg text-white/40 hover:text-[#39ff14] hover:bg-[#39ff14]/20 transition-colors"
-                              title="Ответить"
+                              title={t('spotDetail.reply')}
                             >
                               <Reply className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => handleReportComment(comment.id)}
                               className="p-1.5 rounded-lg text-white/40 hover:text-red-400 hover:bg-red-500/20 transition-colors"
-                              title="Пожаловаться"
+                              title={t('spotDetail.report')}
                             >
                               <Flag className="w-4 h-4" />
                             </button>
@@ -472,7 +467,7 @@ export default function SpotPage() {
                         <button
                           onClick={() => api.comments.delete(comment.id).then(() => {
                             setComments(comments.filter(c => c.id !== comment.id));
-                            addToast('Комментарий удалён', 'success');
+                            addToast(t('spotDetail.commentDeleted'), 'success');
                           })}
                           className="p-1.5 rounded-lg text-white/40 hover:text-red-400 hover:bg-red-500/20 transition-colors"
                         >
@@ -496,7 +491,7 @@ export default function SpotPage() {
                         api.comments.update(comment.id, editContent).then(updated => {
                           setComments(comments.map(c => c.id === comment.id ? updated as Comment : c));
                           setEditingComment(null);
-                          addToast('Комментарий обновлён', 'success');
+                          addToast(t('spotDetail.commentUpdated'), 'success');
                         });
                       }}
                       className="px-3 py-2 rounded-lg bg-[#39ff14] text-black"

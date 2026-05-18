@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { api } from '@/lib/api';
 import { useMap } from '@/contexts/MapContext';
+import { useI18n } from '@/contexts/I18nContext';
 import { MapPin, Loader2, X } from 'lucide-react';
 
 interface CitySearchResult {
@@ -14,6 +15,7 @@ interface CitySearchResult {
 
 export function CitySearch() {
   const { city, setCity } = useMap();
+  const { t } = useI18n();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<CitySearchResult[]>([]);
   const [loading, setLoading] = useState(false);
@@ -56,7 +58,7 @@ export function CitySearch() {
         }
       } catch (e) {
         console.error('City search error:', e);
-        setError('Ошибка поиска');
+        setError(t('citySearch.error'));
         setResults([]);
       } finally {
         setLoading(false);
@@ -92,7 +94,7 @@ export function CitySearch() {
           className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#1f1f2e] text-white text-sm hover:bg-[#2a2a3e] transition-colors w-full"
         >
           <MapPin className="w-4 h-4 text-[#39ff14]" />
-          Найти город...
+          {t('citySearch.find')}
         </button>
       ) : (
         <div className="relative">
@@ -102,7 +104,7 @@ export function CitySearch() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onFocus={() => results.length > 0 && setShowResults(true)}
-            placeholder="Введите название города..."
+            placeholder={t('citySearch.placeholder')}
             className="w-full px-4 py-2 rounded-lg bg-[#1f1f2e] text-white text-sm border border-[#39ff14]/30 outline-none focus:border-[#39ff14]/60"
           />
           {loading && (
@@ -149,7 +151,7 @@ export function CitySearch() {
             onClick={handleClear}
             className="text-xs text-white/40 hover:text-white ml-2"
           >
-            сбросить
+            {t('citySearch.reset')}
           </button>
         </div>
       )}

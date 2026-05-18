@@ -7,6 +7,7 @@ import { useToast } from '@/contexts/ToastContext';
 import { api } from '@/lib/api';
 import { Spot, Comment } from '@/types';
 import { SpotCard } from '@/components/SpotCard';
+import { useI18n } from '@/contexts/I18nContext';
 import { User, MapPin, Clock, Loader2, LogOut, Shield } from 'lucide-react';
 
 interface UserSpot extends Spot {
@@ -18,6 +19,7 @@ interface UserComment extends Comment {
 }
 
 export default function ProfilePageClient() {
+  const { t } = useI18n();
   const { user, isAuthenticated, isLoading: authLoading, logout } = useAuth();
   const { addToast } = useToast();
   const router = useRouter();
@@ -84,12 +86,12 @@ export default function ProfilePageClient() {
                   {user.role?.toLowerCase() === 'admin' && (
                     <span className="px-2 py-0.5 rounded-full bg-[#ff1493]/20 text-[#ff1493] text-xs font-medium flex items-center gap-1">
                       <Shield className="w-3 h-3" />
-                      Админ
+                      {t('profile.admin')}
                     </span>
                   )}
                   <span className="flex items-center gap-1 text-xs text-white/40">
                     <Clock className="w-3 h-3" />
-                    с {new Date(user.created_at).toLocaleDateString('ru-RU')}
+                    {t('profile.memberSince')} {new Date(user.created_at).toLocaleDateString('ru-RU')}
                   </span>
                 </div>
               </div>
@@ -105,17 +107,17 @@ export default function ProfilePageClient() {
           <div className="grid grid-cols-3 gap-4 mt-6">
             <div className="p-4 bg-[#0a0a0f] rounded-xl text-center">
               <p className="text-2xl font-bold text-[#39ff14]">{userSpots.length}</p>
-              <p className="text-xs text-white/60">Спотов</p>
+              <p className="text-xs text-white/60">{t('profile.spots')}</p>
             </div>
             <div className="p-4 bg-[#0a0a0f] rounded-xl text-center">
               <p className="text-2xl font-bold text-[#00f5ff]">0</p>
-              <p className="text-xs text-white/60">Комментариев</p>
+              <p className="text-xs text-white/60">{t('profile.comments')}</p>
             </div>
             <div className="p-4 bg-[#0a0a0f] rounded-xl text-center">
               <p className="text-2xl font-bold text-[#ff1493]">
                 {userSpots.filter(s => s.is_checked).length}/{userSpots.length}
               </p>
-              <p className="text-xs text-white/60">Проверено</p>
+              <p className="text-xs text-white/60">{t('profile.verified')}</p>
             </div>
           </div>
         </div>
@@ -130,7 +132,7 @@ export default function ProfilePageClient() {
                   : 'text-white/60 hover:text-white'
               }`}
             >
-              Мои споты
+              {t('profile.mySpots')}
             </button>
             <button
               onClick={() => setActiveTab('comments')}
@@ -140,7 +142,7 @@ export default function ProfilePageClient() {
                   : 'text-white/60 hover:text-white'
               }`}
             >
-              Комментарии
+              {t('profile.tabComments')}
             </button>
           </div>
 
@@ -155,12 +157,12 @@ export default function ProfilePageClient() {
               ) : (
                 <div className="text-center py-12">
                   <MapPin className="w-12 h-12 text-white/20 mx-auto mb-4" />
-                  <p className="text-white/60">У тебя пока нет спотов</p>
+                  <p className="text-white/60">{t('profile.noSpots')}</p>
                   <button
                     onClick={() => router.push('/spots/new')}
                     className="mt-4 px-4 py-2 rounded-lg bg-[#39ff14] text-black font-medium"
                   >
-                    Добавить спот
+                    {t('profile.addSpot')}
                   </button>
                 </div>
               )
@@ -170,7 +172,7 @@ export default function ProfilePageClient() {
                   <div key={comment.id} className="p-4 bg-[#0a0a0f] rounded-xl hover:bg-[#0a0a0f]/80 transition-colors cursor-pointer" onClick={() => router.push(`/spots/${comment.spot_id}`)}>
                     <div className="flex items-center gap-2 mb-1">
                       <MapPin className="w-3 h-3 text-[#39ff14]" />
-                      <span className="text-sm text-[#39ff14] font-medium truncate">{comment.spot_name || 'Спот'}</span>
+                      <span className="text-sm text-[#39ff14] font-medium truncate">{comment.spot_name || t('profile.spot')}</span>
                     </div>
                     <p className="text-white/80 text-sm line-clamp-2">{comment.content}</p>
                     <p className="text-xs text-white/40 mt-1">{new Date(comment.created_at).toLocaleString('ru-RU')}</p>
@@ -180,7 +182,7 @@ export default function ProfilePageClient() {
             ) : (
               <div className="text-center py-12">
                 <Clock className="w-12 h-12 text-white/20 mx-auto mb-4" />
-                <p className="text-white/60">У тебя пока нет комментариев</p>
+                <p className="text-white/60">{t('profile.noComments')}</p>
               </div>
             )}
           </div>

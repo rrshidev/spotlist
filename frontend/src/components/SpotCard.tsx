@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Spot } from '@/types';
 import { api } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
+import { useI18n } from '@/contexts/I18nContext';
 import { useToast } from '@/contexts/ToastContext';
 import { MapPin, Clock, Image as ImageIcon, Navigation, Heart, Video, ShieldAlert, ShieldCheck, ShieldX } from 'lucide-react';
 
@@ -13,10 +14,10 @@ interface SpotCardProps {
 }
 
 const categoryLabels: Record<string, string> = {
-  park: 'Парк',
-  street: 'Стрит',
-  roller: 'Роллер-дром',
-  routes: 'Маршруты',
+  park: 'categories.park',
+  street: 'categories.street',
+  roller: 'categories.roller',
+  routes: 'categories.routes',
 };
 
 const categoryColors: Record<string, string> = {
@@ -28,6 +29,7 @@ const categoryColors: Record<string, string> = {
 
 export function SpotCard({ spot }: SpotCardProps) {
   const { isAuthenticated } = useAuth();
+  const { t } = useI18n();
   const { addToast } = useToast();
   const [liked, setLiked] = useState(spot.liked || false);
   const [likesCount, setLikesCount] = useState(spot.likes_count || 0);
@@ -44,7 +46,7 @@ export function SpotCard({ spot }: SpotCardProps) {
   async function handleLike(e: { preventDefault: () => void }) {
     e.preventDefault();
     if (!isAuthenticated) {
-      addToast('Войди, чтобы ставить лайки', 'error');
+      addToast(t('spotCard.loginToLike'), 'error');
       return;
     }
     if (isLiking) return;
@@ -54,7 +56,7 @@ export function SpotCard({ spot }: SpotCardProps) {
       setLiked(!liked);
       setLikesCount(prev => liked ? prev - 1 : prev + 1);
     } catch {
-      addToast('Ошибка при лайке', 'error');
+      addToast(t('spotCard.likeError'), 'error');
     } finally {
       setIsLiking(false);
     }
@@ -77,7 +79,7 @@ export function SpotCard({ spot }: SpotCardProps) {
           )}
           
           <div className={`absolute top-3 left-3 px-3 py-1 rounded-full bg-gradient-to-r ${categoryColors[spot.category] || 'from-gray-600 to-gray-400'} text-xs font-semibold text-white`}>
-            {categoryLabels[spot.category] || spot.category}
+            {t(categoryLabels[spot.category] || spot.category)}
           </div>
 
           {spot.obstacles && spot.obstacles.length > 0 && (
@@ -112,7 +114,7 @@ export function SpotCard({ spot }: SpotCardProps) {
           {spot.distance && (
             <div className="absolute top-3 right-3 px-2 py-1 rounded-full bg-black/70 text-xs text-white flex items-center gap-1">
               <Navigation className="w-3 h-3" />
-              {spot.distance} км
+              {spot.distance}{t('spotCard.km')}
             </div>
           )}
 
@@ -157,7 +159,7 @@ export function SpotCard({ spot }: SpotCardProps) {
             <div className="mt-2 flex flex-wrap gap-1">
               {spot.ride_types.map((rt) => (
                 <span key={rt} className="px-1.5 py-0.5 rounded bg-[#1f1f2e] text-[10px] text-white/70">
-                  {rt === 'skateboard' ? '🛹 Скейт' : rt === 'rollerblades' ? '🛼 Ролики' : rt === 'bmx' ? '🚲 BMX' : rt === 'scooter' ? '🛴 Самокат' : rt === 'longboard' ? '🛹 Лонгборд' : rt === 'surfskate' ? '🛹 Сёрфскейт' : rt === 'mountainboard' ? '🛹 Маунтин' : rt === 'motorcycle' ? '🏍️ Мото' : rt === 'sup' ? '🏄 САП' : rt === 'kayak' ? '🛶 Каяк' : rt === 'cycling' ? '🚲 Вело' : rt === 'running' ? '🏃 Бег' : rt === 'hiking' ? '🥾 Поход' : '⭐'}
+                  {t('rideTypesShort.' + rt)}
                 </span>
               ))}
             </div>
@@ -169,7 +171,7 @@ export function SpotCard({ spot }: SpotCardProps) {
               {new Date(spot.created_at).toLocaleDateString('ru-RU')}
             </span>
             {spot.author_username && (
-              <span>от {spot.author_username}</span>
+              <span>{t('spotCard.from')} {spot.author_username}</span>
             )}
           </div>
         </div>

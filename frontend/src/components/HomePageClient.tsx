@@ -6,11 +6,13 @@ import { api } from '@/lib/api';
 import { Spot, SpotListResponse } from '@/types';
 import { SpotCard } from '@/components/SpotCard';
 import { FilterBar } from '@/components/FilterBar';
+import { useI18n } from '@/contexts/I18nContext';
 import { SpotMap } from '@/components/Map';
 import { CitySearch } from '@/components/CitySearch';
 import { MapPin, Loader2, Navigation } from 'lucide-react';
 
 export function HomePageClient() {
+  const { t } = useI18n();
   const [spots, setSpots] = useState<Spot[]>([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
@@ -76,16 +78,16 @@ export function HomePageClient() {
             </div>
             <div className="flex-1">
               <h1 className="text-2xl font-bold text-white">
-                Найди свой <span className="text-[#39ff14]">спот</span>
+                {t('home.hero')} <span className="text-[#39ff14]">спот</span>
               </h1>
               <p className="text-sm text-white/50">
                 {locationLoading
-                  ? 'Определяем местоположение...'
+                  ? t('home.detecting')
                   : city
-                    ? `Споты в ${city}`
+                    ? `${t('home.spotsIn')} ${city}`
                     : detectedCity
-                      ? `Споты рядом — ${detectedCity}`
-                      : 'Укажи город или разреши геолокацию'}
+                      ? `${t('home.spotsNear')} ${detectedCity}`
+                      : t('home.hint')}
               </p>
             </div>
             <div className="w-64">
@@ -95,10 +97,10 @@ export function HomePageClient() {
           {detectedCity && (
             <div className="mb-4 flex items-center gap-2 text-sm text-white/60">
               <Navigation className="w-4 h-4 text-[#39ff14]" />
-              <span>Твой город: <strong className="text-white">{detectedCity}</strong></span>
+              <span>{t('home.yourCity')} <strong className="text-white">{detectedCity}</strong></span>
               {city !== detectedCity && (
                 <button onClick={() => setCity(detectedCity)} className="ml-2 px-2 py-0.5 rounded bg-[#39ff14]/20 text-[#39ff14] text-xs hover:bg-[#39ff14]/30 transition-colors">
-                  Показать споты
+                  {t('home.showSpots')}
                 </button>
               )}
             </div>
@@ -121,12 +123,12 @@ export function HomePageClient() {
             <div className="flex flex-col items-center justify-center h-64 text-center">
               <MapPin className="w-16 h-16 text-white/20 mb-4" />
               <h3 className="text-xl font-semibold text-white/60 mb-2">
-                {hasFilter ? 'Спотов не найдено' : 'Выбери город'}
+                {hasFilter ? t('home.notFound') : t('home.selectCity')}
               </h3>
               <p className="text-white/40">
                 {hasFilter
-                  ? 'Попробуй изменить фильтры или расширить радиус поиска'
-                  : 'Воспользуйся поиском города или разреши геолокацию'}
+                  ? t('home.changeFilters')
+                  : t('home.useSearch')}
               </p>
             </div>
           ) : (
