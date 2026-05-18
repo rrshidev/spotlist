@@ -25,6 +25,7 @@ class SpotCreate(SpotBase):
     video: Optional[str] = None
     status: Optional[str] = None
     obstacles: Optional[List[ObstacleItem]] = None
+    ride_types: Optional[List[str]] = None
 
 
 class SpotUpdate(BaseModel):
@@ -37,11 +38,13 @@ class SpotUpdate(BaseModel):
     screenshot: Optional[str] = None
     video: Optional[str] = None
     obstacles: Optional[List[ObstacleItem]] = None
+    ride_types: Optional[List[str]] = None
 
 
 class SpotResponse(SpotBase):
     id: str
     obstacles: List[ObstacleItem] = []
+    ride_types: List[str] = []
     media: List[str] = []
     screenshot: Optional[str] = None
     video: Optional[str] = None

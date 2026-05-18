@@ -54,7 +54,7 @@ export const api = {
   },
 
   spots: {
-    list: (params?: { lat?: number; lon?: number; radius?: number; category?: string; city?: string; obstacle_type?: string; stair_count?: number; page?: number }) => {
+    list: (params?: { lat?: number; lon?: number; radius?: number; category?: string; city?: string; obstacle_type?: string; stair_count?: number; ride_type?: string; page?: number }) => {
       const searchParams = new URLSearchParams();
       
       if (params?.lat) searchParams.set('lat', params.lat.toString());
@@ -64,6 +64,7 @@ export const api = {
       if (params?.city) searchParams.set('city', params.city);
       if (params?.obstacle_type) searchParams.set('obstacle_type', params.obstacle_type);
       if (params?.stair_count) searchParams.set('stair_count', params.stair_count.toString());
+      if (params?.ride_type) searchParams.set('ride_type', params.ride_type);
       if (params?.page) searchParams.set('page', params.page.toString());
       searchParams.set('with_liked', 'true');
       
@@ -84,6 +85,7 @@ export const api = {
       video?: string;
       status?: string;
       obstacles?: { type: string; count?: number | null }[];
+      ride_types?: string[];
     }) => request('/spots', { method: 'POST', body: JSON.stringify(data) }),
     update: (id: string, data: Partial<{
       name: string;
@@ -97,6 +99,7 @@ export const api = {
       screenshot: string;
       video: string;
       obstacles: { type: string; count?: number | null }[];
+      ride_types?: string[];
     }>) => request(`/spots/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
     delete: (id: string) => request(`/spots/${id}`, { method: 'DELETE' }),
     updateStatus: (id: string, status: string) =>

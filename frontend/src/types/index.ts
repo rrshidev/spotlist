@@ -26,6 +26,7 @@ export interface Spot {
   city: string;
   category: 'park' | 'street' | 'roller' | 'routes';
   obstacles: ObstacleItem[];
+  ride_types: string[];
   media: string[];
   screenshot: string | null;
   video: string | null;

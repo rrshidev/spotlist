@@ -21,6 +21,8 @@ interface MapContextType {
   setObstacleType: (t: string) => void;
   stairCount: string;
   setStairCount: (c: string) => void;
+  rideType: string;
+  setRideType: (t: string) => void;
   detectedCity: string;
   setDetectedCity: (city: string) => void;
   isLoading: boolean;
@@ -36,6 +38,7 @@ export function MapProvider({ children }: { children: ReactNode }) {
   const [city, setCity] = useState('');
   const [obstacleType, setObstacleType] = useState('');
   const [stairCount, setStairCount] = useState('');
+  const [rideType, setRideType] = useState('');
   const [detectedCity, setDetectedCity] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -87,6 +90,8 @@ export function MapProvider({ children }: { children: ReactNode }) {
       setObstacleType,
       stairCount,
       setStairCount,
+      rideType,
+      setRideType,
       detectedCity,
       setDetectedCity,
       isLoading,

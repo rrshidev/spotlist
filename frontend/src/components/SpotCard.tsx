@@ -153,6 +153,16 @@ export function SpotCard({ spot }: SpotCardProps) {
             </p>
           )}
 
+          {spot.ride_types && spot.ride_types.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-1">
+              {spot.ride_types.map((rt) => (
+                <span key={rt} className="px-1.5 py-0.5 rounded bg-[#1f1f2e] text-[10px] text-white/70">
+                  {rt === 'skateboard' ? '🛹 Скейт' : rt === 'rollerblades' ? '🛼 Ролики' : rt === 'bmx' ? '🚲 BMX' : rt === 'scooter' ? '🛴 Самокат' : rt === 'longboard' ? '🛹 Лонгборд' : rt === 'surfskate' ? '🛹 Сёрфскейт' : rt === 'mountainboard' ? '🛹 Маунтин' : rt === 'motorcycle' ? '🏍️ Мото' : rt === 'sup' ? '🏄 САП' : rt === 'kayak' ? '🛶 Каяк' : rt === 'cycling' ? '🚲 Вело' : rt === 'running' ? '🏃 Бег' : rt === 'hiking' ? '🥾 Поход' : '⭐'}
+                </span>
+              ))}
+            </div>
+          )}
+
           <div className="mt-3 flex items-center gap-4 text-xs text-white/40">
             <span className="flex items-center gap-1">
               <Clock className="w-3 h-3" />

@@ -14,7 +14,7 @@ export function HomePageClient() {
   const [spots, setSpots] = useState<Spot[]>([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
-  const { location, radius, category, city, obstacleType, stairCount, setCity, detectedCity, isLoading: locationLoading } = useMap();
+  const { location, radius, category, city, obstacleType, stairCount, rideType, setCity, detectedCity, isLoading: locationLoading } = useMap();
   const hasFilter = !!(city || detectedCity || location);
 
   useEffect(() => {
@@ -45,6 +45,10 @@ export function HomePageClient() {
           params.stair_count = parseInt(stairCount, 10);
         }
 
+        if (rideType) {
+          params.ride_type = rideType;
+        }
+
         const response = await api.spots.list(params) as SpotListResponse;
         setSpots(response.spots);
       } catch (error) {
@@ -60,7 +64,7 @@ export function HomePageClient() {
       setLoading(false);
       setSpots([]);
     }
-  }, [location, radius, category, city, detectedCity, locationLoading, hasFilter]);
+  }, [location, radius, category, city, detectedCity, rideType, locationLoading, hasFilter]);
 
   return (
     <div className="flex flex-col h-full">

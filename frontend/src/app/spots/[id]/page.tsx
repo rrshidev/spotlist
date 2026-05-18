@@ -237,6 +237,19 @@ export default function SpotPage() {
               <p className="mt-4 text-white/80">{spot.description}</p>
             )}
 
+            {spot.ride_types && spot.ride_types.length > 0 && (
+              <div className="mt-4">
+                <p className="text-sm text-white/60 mb-2">Тип катания</p>
+                <div className="flex flex-wrap gap-2">
+                  {spot.ride_types.map((rt) => (
+                    <span key={rt} className="px-3 py-1 rounded-lg bg-[#0a0a0f] border border-[#1f1f2e] text-sm text-white/80">
+                      {rt === 'skateboard' ? '🛹 Скейтборд' : rt === 'rollerblades' ? '🛼 Ролики' : rt === 'bmx' ? '🚲 BMX' : rt === 'scooter' ? '🛴 Самокат' : rt === 'longboard' ? '🛹 Лонгборд' : rt === 'surfskate' ? '🛹 Сёрфскейт' : rt === 'mountainboard' ? '🛹 Маунтинборд' : rt === 'motorcycle' ? '🏍️ Мото/Эндуро' : rt === 'sup' ? '🏄 САП' : rt === 'kayak' ? '🛶 Каяк' : rt === 'cycling' ? '🚲 Велосипед' : rt === 'running' ? '🏃 Бег' : rt === 'hiking' ? '🥾 Поход' : '⭐ Другое'}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {spot.media && spot.media.length > 0 && (
               <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {spot.media.map((url, i) => (

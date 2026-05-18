@@ -46,6 +46,7 @@ class Spot(Base):
     city = Column(String(255), nullable=False, index=True)
     category = Column(String(50), nullable=False, default="street")
     obstacles = Column(JSON, default=list)
+    ride_types = Column(JSON, default=list)
     media = Column(JSON, default=list)
     screenshot = Column(String(500), nullable=True)
     video = Column(String(500), nullable=True)

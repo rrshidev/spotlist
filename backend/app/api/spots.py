@@ -26,6 +26,7 @@ def _spot_to_response(spot: Spot, liked: bool = False, distance: Optional[float]
         city=spot.city,
         category=spot.category,
         obstacles=[{"type": o["type"], "count": o.get("count")} for o in (spot.obstacles or [])],
+        ride_types=spot.ride_types or [],
         media=spot.media or [],
         screenshot=spot.screenshot,
         video=spot.video,
@@ -84,6 +85,7 @@ async def get_spots(
     city: Optional[str] = Query(None),
     obstacle_type: Optional[str] = Query(None),
     stair_count: Optional[int] = Query(None),
+    ride_type: Optional[str] = Query(None),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     with_liked: bool = Query(False),
@@ -103,6 +105,9 @@ async def get_spots(
 
     if obstacle_type:
         spots = [s for s in spots if _match_obstacles(s.obstacles, obstacle_type, stair_count)]
+
+    if ride_type:
+        spots = [s for s in spots if ride_type in (s.ride_types or [])]
 
     user_liked_spots = set()
     if with_liked and current_user:
@@ -171,6 +176,7 @@ async def create_spot(
         city=spot_data.city,
         category=spot_data.category.value if hasattr(spot_data.category, 'value') else spot_data.category,
         obstacles=[o.model_dump() for o in (spot_data.obstacles or [])],
+        ride_types=spot_data.ride_types or [],
         media=spot_data.media or [],
         screenshot=spot_data.screenshot,
         video=spot_data.video,

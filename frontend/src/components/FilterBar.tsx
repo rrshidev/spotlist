@@ -38,8 +38,26 @@ const obstacleTypes = [
   { value: 'wallride', label: '⊢ Валлрайд' },
 ];
 
+const rideTypes = [
+  { value: '', label: 'Всё' },
+  { value: 'skateboard', label: '🛹 Скейт' },
+  { value: 'rollerblades', label: '🛼 Ролики' },
+  { value: 'bmx', label: '🚲 BMX' },
+  { value: 'scooter', label: '🛴 Самокат' },
+  { value: 'longboard', label: '🛹 Лонгборд' },
+  { value: 'surfskate', label: '🛹 Сёрфскейт' },
+  { value: 'mountainboard', label: '🛹 Маунтинборд' },
+  { value: 'motorcycle', label: '🏍️ Мото/Эндуро' },
+  { value: 'sup', label: '🏄 САП' },
+  { value: 'kayak', label: '🛶 Каяк' },
+  { value: 'cycling', label: '🚲 Вело' },
+  { value: 'running', label: '🏃 Бег' },
+  { value: 'hiking', label: '🥾 Поход' },
+  { value: 'other', label: '⭐ Другое' },
+];
+
 export function FilterBar({ viewMode, onViewModeChange }: FilterBarProps) {
-  const { category, setCategory, radius, setRadius, city, setCity, obstacleType, setObstacleType, stairCount, setStairCount } = useMap();
+  const { category, setCategory, radius, setRadius, city, setCity, obstacleType, setObstacleType, stairCount, setStairCount, rideType, setRideType } = useMap();
 
   return (
     <div className="bg-[#12121a] border border-[#1f1f2e] rounded-xl p-4">
@@ -102,6 +120,18 @@ export function FilterBar({ viewMode, onViewModeChange }: FilterBarProps) {
             />
           )}
         </div>
+
+        <select
+          value={rideType}
+          onChange={(e) => setRideType(e.target.value)}
+          className="px-3 py-1.5 rounded-lg bg-[#1f1f2e] text-white text-sm border-none outline-none cursor-pointer"
+        >
+          {rideTypes.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
 
         <div className="flex-1" />
 

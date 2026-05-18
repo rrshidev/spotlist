@@ -50,6 +50,23 @@ const obstacleLabels: Record<string, string> = {
   wallride: 'Воллрайд',
 };
 
+const rideTypeOptions = [
+  { value: 'skateboard', label: '🛹 Скейтборд' },
+  { value: 'rollerblades', label: '🛼 Ролики' },
+  { value: 'bmx', label: '🚲 BMX' },
+  { value: 'scooter', label: '🛴 Самокат' },
+  { value: 'longboard', label: '🛹 Лонгборд' },
+  { value: 'surfskate', label: '🛹 Сёрфскейт' },
+  { value: 'mountainboard', label: '🛹 Маунтинборд' },
+  { value: 'motorcycle', label: '🏍️ Мото/Эндуро' },
+  { value: 'sup', label: '🏄 САП-борд' },
+  { value: 'kayak', label: '🛶 Каяк' },
+  { value: 'cycling', label: '🚲 Велосипед' },
+  { value: 'running', label: '🏃 Бег' },
+  { value: 'hiking', label: '🥾 Поход' },
+  { value: 'other', label: '⭐ Другое' },
+];
+
 export default function NewSpotPageClient() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -63,6 +80,7 @@ export default function NewSpotPageClient() {
   const [video, setVideo] = useState('');
   const [obstacles, setObstacles] = useState<ObstacleItem[]>([]);
   const [stairCount, setStairCount] = useState<number>(5);
+  const [rideTypes, setRideTypes] = useState<string[]>([]);
   const [showObstacles, setShowObstacles] = useState(true);
   const [status, setStatus] = useState('unknown');
   const [uploading, setUploading] = useState(false);
@@ -153,6 +171,14 @@ export default function NewSpotPageClient() {
     setObstacles(obstacles.map((o) => (o.type === 'stairs' ? { ...o, count } : o)));
   };
 
+  const toggleRideType = (type: string) => {
+    if (rideTypes.includes(type)) {
+      setRideTypes(rideTypes.filter((t) => t !== type));
+    } else {
+      setRideTypes([...rideTypes, type]);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!latitude || !longitude) {
@@ -173,6 +199,7 @@ export default function NewSpotPageClient() {
         media,
         screenshot: screenshot || undefined,
         obstacles: obstacles.length > 0 ? obstacles : undefined,
+        ride_types: rideTypes.length > 0 ? rideTypes : undefined,
         video: video || undefined,
         status: status !== 'unknown' ? status : undefined,
       });
@@ -312,6 +339,26 @@ export default function NewSpotPageClient() {
                       )}
                     </div>
                   )}
+                </div>
+
+                <div>
+                  <label className="block text-sm text-white/60 mb-2">Тип катания</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {rideTypeOptions.map((rt) => (
+                      <button
+                        key={rt.value}
+                        type="button"
+                        onClick={() => toggleRideType(rt.value)}
+                        className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                          rideTypes.includes(rt.value)
+                            ? 'bg-[#00f5ff]/20 text-[#00f5ff] border border-[#00f5ff]/40'
+                            : 'bg-[#1f1f2e] text-white/60 hover:text-white border border-transparent'
+                        }`}
+                      >
+                        {rt.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 <div>

@@ -29,6 +29,23 @@ const obstacleTypes = [
   { value: 'wallride', label: 'Wallride', icon: '⊢' },
 ];
 
+const rideTypeOptions = [
+  { value: 'skateboard', label: '🛹 Скейтборд' },
+  { value: 'rollerblades', label: '🛼 Ролики' },
+  { value: 'bmx', label: '🚲 BMX' },
+  { value: 'scooter', label: '🛴 Самокат' },
+  { value: 'longboard', label: '🛹 Лонгборд' },
+  { value: 'surfskate', label: '🛹 Сёрфскейт' },
+  { value: 'mountainboard', label: '🛹 Маунтинборд' },
+  { value: 'motorcycle', label: '🏍️ Мото/Эндуро' },
+  { value: 'sup', label: '🏄 САП-борд' },
+  { value: 'kayak', label: '🛶 Каяк' },
+  { value: 'cycling', label: '🚲 Велосипед' },
+  { value: 'running', label: '🏃 Бег' },
+  { value: 'hiking', label: '🥾 Поход' },
+  { value: 'other', label: '⭐ Другое' },
+];
+
 export default function EditSpotPage() {
   const params = useParams();
   const router = useRouter();
@@ -44,6 +61,7 @@ export default function EditSpotPage() {
   const [media, setMedia] = useState<string[]>([]);
   const [obstacles, setObstacles] = useState<ObstacleItem[]>([]);
   const [stairCount, setStairCount] = useState<number>(5);
+  const [rideTypes, setRideTypes] = useState<string[]>([]);
   const [showObstacles, setShowObstacles] = useState(false);
   const [video, setVideo] = useState('');
   const [uploading, setUploading] = useState(false);
@@ -74,6 +92,7 @@ export default function EditSpotPage() {
         setLongitude(spot.longitude);
         setMedia(spot.media || []);
         setObstacles(spot.obstacles || []);
+        setRideTypes(spot.ride_types || []);
         setVideo(spot.video || '');
         const stairs = (spot.obstacles || []).find((o: ObstacleItem) => o.type === 'stairs');
         if (stairs?.count) setStairCount(stairs.count);
@@ -120,6 +139,14 @@ export default function EditSpotPage() {
     setObstacles(obstacles.map((o) => (o.type === 'stairs' ? { ...o, count } : o)));
   };
 
+  const toggleRideType = (type: string) => {
+    if (rideTypes.includes(type)) {
+      setRideTypes(rideTypes.filter((t) => t !== type));
+    } else {
+      setRideTypes([...rideTypes, type]);
+    }
+  };
+
   const handleSubmit = async () => {
     if (!name.trim() || !city.trim() || !latitude || !longitude) {
       addToast('Заполните обязательные поля', 'error');
@@ -137,6 +164,7 @@ export default function EditSpotPage() {
         longitude,
         media,
         obstacles: obstacles.length > 0 ? obstacles : undefined,
+        ride_types: rideTypes.length > 0 ? rideTypes : undefined,
         video: video || undefined,
       });
       addToast('Спот обновлён', 'success');
@@ -282,6 +310,26 @@ export default function EditSpotPage() {
                 )}
               </div>
             )}
+          </div>
+
+          <div>
+            <label className="block text-sm text-white/60 mb-2">Тип катания</label>
+            <div className="grid grid-cols-2 gap-2">
+              {rideTypeOptions.map((rt) => (
+                <button
+                  key={rt.value}
+                  type="button"
+                  onClick={() => toggleRideType(rt.value)}
+                  className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                    rideTypes.includes(rt.value)
+                      ? 'bg-[#00f5ff]/20 text-[#00f5ff] border border-[#00f5ff]/40'
+                      : 'bg-[#1f1f2e] text-white/60 hover:text-white border border-transparent'
+                  }`}
+                >
+                  {rt.label}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div>
