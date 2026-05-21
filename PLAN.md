@@ -26,17 +26,17 @@ c:/Projects/spotlist/
 ├── frontend/              # Next.js 16 (Turbopack)
 │   └── src/
 │       ├── app/           # Страницы (маршруты)
-│       ├── contexts/      # AuthContext, MapContext, ToastContext
+│       ├── contexts/      # AuthContext, MapContext, ToastContext, I18nContext
 │       ├── lib/           # API client, helpers
 │       └── types/         # TypeScript интерфейсы
 ├── backend/               # FastAPI
 │   ├── app/
-│   │   ├── api/           # Роуты (auth, spots, comments, etc.)
+│   │   ├── api/           # Роуты (auth, spots, comments, likes, wishlist, etc.)
 │   │   ├── core/          # config, security (JWT, hashing)
 │   │   ├── db/            # session, Base
-│   │   ├── models/        # SQLAlchemy модели
+│   │   ├── models/        # SQLAlchemy модели (User, Spot, Comment, Like, SavedSpot)
 │   │   └── schemas/       # Pydantic схемы
-│   ├── tests/             # pytest тесты (29 шт.)
+│   ├── tests/             # pytest тесты
 │   └── uploads/           # Фото/видео (gitignored)
 ├── docker-compose.yml     # healthcheck + restart: unless-stopped
 └── PLAN.md
@@ -44,7 +44,7 @@ c:/Projects/spotlist/
 
 ---
 
-## Текущие возможности (Phase 0 — ✅ готово)
+## Текущий статус (Phase 0 — ✅ готово)
 
 ### Auth
 - Регистрация (email, username, password)
@@ -52,6 +52,7 @@ c:/Projects/spotlist/
 - Профиль: GET/PUT `/auth/me`
 - Роли: user / admin
 - `get_current_user` (required) + `get_optional_current_user`
+- i18n RU/EN
 
 ### Spots
 - CRUD (создание только авторизованными)
@@ -60,6 +61,10 @@ c:/Projects/spotlist/
 - Фото: массив `media`, скриншот маршрута `screenshot`
 - Модерация: `is_checked` (админ одобряет)
 - Сортировка по расстоянию (haversine)
+- Obstacle tags (ledge, rail, stairs, hubba, gap, bank, manual_pad, bowl, quarter_pipe, wallride)
+- Spot status (active, bust, risky, unknown)
+- Ride types (skateboard, rollerblades, bmx, scooter, etc.)
+- Видео (ссылка на внешнее видео)
 
 ### Comments
 - CRUD, threaded replies (`parent_id`)
@@ -89,13 +94,13 @@ c:/Projects/spotlist/
 - Раздача статики: `GET /uploads/{filename}`
 
 ### Frontend
-- Главная: карта + список (переключение), CitySearch, FilterBar (категория, радиус)
-- Карточка спота: фото, описание, карта, комменты, лайки
-- Создание спота: карта + форма + загрузка фото
+- Главная: карта + список (переключение), CitySearch, FilterBar (категория, радиус, препятствия, тип катания)
+- Карточка спота: фото, описание, карта, комменты, лайки, статус, препятствия, ride types
+- Создание/редактирование спота: карта + форма + загрузка фото (обстаклы, статус, ride types)
 - Профиль: аватар, инфо, мои споты, мои комменты, настройки
 - Админка: табы (споты на проверку, юзеры, жалобы)
-- Регистрация / логин
-- Темная неоновая тема
+- Регистрация / логин / i18n (RU/EN)
+- Тёмная неоновая тема + LanguageSwitcher
 
 ### Tests
 - Backend: 36 тестов (pytest + httpx + aiosqlite)
@@ -103,123 +108,168 @@ c:/Projects/spotlist/
 
 ---
 
-## Фаза 1 — Priority features (перед деплоем)
-
-### 1.1 Obstacle tags ✅
-
-**Суть:** детальные теги препятствий на споте: ledge, rail, stairs, hubba, gap, bank, manual_pad, bowl, quarter_pipe, wallride. Для stairs — количество ступеней. Фильтр по типу препятствия + числу ступеней.
-
-**Backend:**
-- ✅ `ObstacleType` enum в models/spot.py
-- ✅ `obstacles: JSON` колонка в Spot
-- ✅ SpotCreate/SpotUpdate: `obstacles: Optional[List[Obstacle]]`
-- ✅ SpotResponse: `obstacles: List[Obstacle]`
-- ✅ `GET /spots?obstacle_type=&stair_count=`
-
-**Frontend:**
-- ✅ `Obstacle` type + `obstacles` поле в Spot
-- ✅ CreateSpot: мультиселект препятствий + число ступеней
-- ✅ SpotCard: иконки препятствий
-- ✅ SpotDetail: блок "Препятствия"
-- ✅ FilterBar: селект типа + ввод ступеней
-
-### 1.2 Spot status / condition ✅
-
-**Суть:** пользователи отмечают состояние спота — "Всё ок", "Bust (застроили/закрыли)", "Risky (охрана/опасно)", "Неизвестно". Помогает не тратить время на мёртвые споты.
-
-**Backend:**
-- ✅ `SpotStatus` enum (active, bust, risky, unknown)
-- ✅ `status: String(20)` колонка (default=unknown)
-- ✅ `last_status_at: DateTime` колонка
-- ✅ `PATCH /spots/{id}/status` — любой авторизованный меняет статус
-- ✅ SpotResponse: `status`, `last_status_at`
-
-**Frontend:**
-- ✅ SpotDetail: набор кнопок статуса + активный бейдж
-- ✅ SpotCard: цветной индикатор (зелёный/красный/жёлтый/серый)
-- ❌ Filter: "показать только active" (отложено)
-
-### 1.3 Video upload ✅
-
-**Суть:** загрузка короткого видео-клипа трюка на споте.
-
-**Backend:**
-- ❌ Расширить uploads: разрешить `video/mp4`, `video/quicktime`, макс 50MB (отложено — сейчас только ссылка на внешнее видео)
-- ✅ `video: String(500)` колонка в Spot (URL)
-- ✅ SpotCreate/SpotUpdate: `video: Optional[str]`
-- ✅ SpotResponse: `video`
-
-**Frontend:**
-- ❌ CreateSpot: drag-n-drop зона для видео (отложено — сейчас текстовый ввод ссылки)
-- ✅ SpotDetail: HTML5 `<video>` плеер
-- ✅ SpotCard: иконка "есть видео"
-
-### 1.4 Obstacle filter UI 🔍
-
-**Суть:** удобный фильтр на главной по типу препятствия.
-
-**Frontend:**
-- ✅ FilterBar: выпадающий список с иконками препятствий
-- ✅ Числовой ввод "ступеней" (для stairs)
-- ✅ Активный фильтр подсвечен
+## Phase 1 — Завершено ✅
+- [x] 1.1 Obstacle tags
+- [x] 1.2 Spot status / condition
+- [x] 1.3 Video upload (ссылка)
+- [x] 1.4 Obstacle filter UI
+- [x] Ride types (skateboard, rollerblades, bmx, scooter, longboard, surfskate, mountainboard, motorcycle, sup, kayak, cycling, running, hiking, other)
+- [x] i18n RU/EN
+- [x] Деплой на VPS (spotlist.online)
 
 ---
 
-## Фаза 2 — Growth (после деплоя, параллельно маркетингу)
+## Phase 2 — Growth (активный рост)
 
-### 2.1 Геймификация (XP / уровни / лидерборд)
-- Начисление XP: спот (+50), видео (+30), коммент (+10), лайк (+5), статус (+5)
-- Лидерборд топ-райтеров
-- Прогресс-бар в профиле
-- Ачивки / бейджи
+> **Стратегия:** превратить визитёра в зарегистрированного пользователя, дать причины возвращаться, создать виральность.
 
-### 2.2 Wishlist / Bucket list
-- Кнопка "сохранить" на карточке и детальной странице
-- Страница `/wishlist`
+### 2.1 Wishlist / Saved spots ⬅️ СЕЙЧАС
 
-### 2.3 Уведомления
-- "Новый спот в твоём городе"
-- "Изменился статус спота"
-- WebSocket или SSE + Service Worker
+**Суть:** мотивация зарегиться — сохранить спот в коллекцию. Незарегистрированный видит ☆, нажимает → ему предлагают войти/зарегаться. После регистрации сразу показывает сохранённые споты.
 
-### 2.4 SEO
-- SSR для страниц спотов
-- Open Graph мета-теги
-- sitemap.xml
+**Backend:**
+- [ ] Модель `SavedSpot` (user_id, spot_id, created_at)
+- [ ] `POST /wishlist/{spot_id}` — сохранить
+- [ ] `DELETE /wishlist/{spot_id}` — удалить
+- [ ] `GET /wishlist` — мои сохранённые
+- [ ] `GET /spots/{id}/saved` — проверка, сохранён ли спот (is_saved)
+
+**Frontend:**
+- [ ] SaveButton (☆ / ★) на SpotCard и SpotDetail
+- [ ] Unauthenticated → редирект на /login с сообщением "Сохрани спот — войди в аккаунт"
+- [ ] Страница `/wishlist` (список сохранённых спотов)
+- [ ] Профиль: вкладка "Сохранённые"
+
+### 2.2 Telegram login
+
+**Суть:** вход в один клик через Telegram — убирает барьер "придумать пароль".
+
+**Backend:**
+- [ ] Создать Telegram бота (BotFather)
+- [ ] Endpoint `POST /auth/telegram` — верификация Telegram Login Widget
+- [ ] JWT после успешного входа
+- [ ] Link/unlink Telegram в профиле
+
+**Frontend:**
+- [ ] Кнопка "Войти через Telegram" на /login и /register
+- [ ] Настройки: привязать/отвязать Telegram
+
+### 2.3 PWA + Push-уведомления
+
+**Суть:** иконка на телефоне, push-уведомления — бесплатный канал возврата.
+
+**Frontend:**
+- [ ] manifest.json (иконки, splash screen)
+- [ ] Service Worker (кэш, offline fallback)
+- [ ] Push API: подписка на уведомления
+- [ ] Кнопка "Установить на телефон" (beforeinstallprompt)
+
+**Backend:**
+- [ ] WebPush endpoint для хранения subscriptions
+- [ ] Отправка: "Новый спот в твоём городе"
+- [ ] Отправка: "Изменился статус спота"
+
+### 2.4 Геймификация (XP / уровни / лидерборд)
+
+**Суть:** мотивация участвовать — XP за активности, уровни, топ райдеров.
+
+**Backend:**
+- [ ] XP колонка в User + level (auto from XP)
+- [ ] Начисление: спот (+50), видео (+30), коммент (+10), лайк (+5), статус (+5)
+- [ ] Лидерборд: `GET /leaderboard`
+- [ ] Ачивки / бейджи (модель + логика)
+
+**Frontend:**
+- [ ] Прогресс-бар в профиле (уровень + XP до следующего)
+- [ ] Страница `/leaderboard`
+- [ ] Бейджи на карточке пользователя
+- [ ] Popup "XP +50!" после действий
 
 ---
 
-## Фаза 3 — Strategic (прокачка)
+## Phase 3 — Viral & Content
 
-### 3.1 Погода на споте
+### 3.1 Seed-контент + Шеринг
+
+**Суть:** наполнить карту реальными спотами, сделать каждый спот "расшариваемым".
+
+**Действия (не код):**
+- [ ] Добавить 15-20 спотов в своём городе с фото
+- [ ] Попросить знакомых райдеров добавить свои
+- [ ] Создать Telegram-канал / чат сообщества
+- [ ] Наклейки с QR-кодом на реальных спотах
+
+**Frontend:**
+- [ ] OG-картинки для каждого спота (Open Graph)
+- [ ] Share button (скопировать ссылку, расшарить в соцсети)
+
+### 3.2 SEO
+
+**Суть:** поисковый трафик — долгосрочный канал.
+
+- [ ] SSR для страниц спотов
+- [ ] Open Graph мета-теги (title, description, image)
+- [ ] sitemap.xml
+- [ ] robots.txt
+- [ ] ЧПУ (slug вместо id)
+
+### 3.3 Уведомления (доп. сценарии)
+
+- [ ] "Твой спот лайкнули"
+- [ ] "Новый комментарий на твоём споте"
+- [ ] WebSocket или SSE для live-обновлений
+
+---
+
+## Phase 4 — Strategic (прокачка)
+
+### 4.1 Погода на споте
 - Интеграция OpenWeatherMap API
 - "Сейчас сухо, можно кататься" / "Мокро, не вариант"
 
-### 3.2 Сессии / Джемы
+### 4.2 Сессии / Джемы
 - Создание встречи на споте: дата, время, описание
 - Присоединиться / отписаться
 - Страница `/sessions`
 
-### 3.3 Мобильные приложения
-- PWA (иконка на телефоне + push)
+### 4.3 Мобильные приложения
+- PWA (уже сделано в Phase 2.3)
 - В перспективе — React Native / Flutter
+
+### 4.4 Монетизация (не срочно)
+- [ ] Buy Me a Coffee / донаты
+- [ ] Мерч брендированный
+- [ ] Контекстная реклама (Brand safety: скейт/BMX/энергетики)
+- [ ] Premium-функции (только если база > 1000 юзеров)
 
 ---
 
-## Этапы реализации
+## Чеклист реализации
 
-- [x] Phase 0: Текущий MVP (все базовые фичи)
-- [x] Phase 1.1: Obstacle tags
-- [x] Phase 1.2: Spot status / condition
-- [x] Phase 1.3: Video upload (ссылка, drag-n-drop отложен)
-- [x] Phase 1.4: Obstacle filter UI
-- [x] Phase 1: Smoke test + Docker rebuild
-- [ ] Phase 1: **Деплой**
-- [ ] Phase 2.1: Геймификация
-- [ ] Phase 2.2: Wishlist
-- [ ] Phase 2.3: Уведомления
-- [ ] Phase 2.4: SEO
-- [ ] Phase 3: Погода, сессии, PWA
+### Phase 1 ✅
+- [x] Obstacle tags
+- [x] Spot status / condition
+- [x] Video upload
+- [x] Obstacle filter UI
+- [x] Ride types
+- [x] i18n RU/EN
+- [x] Деплой на spotlist.online
+
+### Phase 2
+- [ ] **2.1 Wishlist / Saved spots** ⬅️
+- [ ] 2.2 Telegram login
+- [ ] 2.3 PWA + Push
+- [ ] 2.4 Геймификация
+
+### Phase 3
+- [ ] 3.1 Seed-контент + Шеринг
+- [ ] 3.2 SEO
+- [ ] 3.3 Уведомления (доп. сценарии)
+
+### Phase 4
+- [ ] 4.1 Погода на споте
+- [ ] 4.2 Сессии / Джемы
+- [ ] 4.4 Монетизация
 
 ---
 
@@ -231,3 +281,5 @@ c:/Projects/spotlist/
 - Статус спота может менять любой авторизованный пользователь (без истории)
 - Загрузка: фото (jpeg/png/webp/gif, до 5MB), видео (mp4/mov, до 50MB)
 - Город определяется автоматически (Nominatim), юзер может исправить
+- Все новые фичи — в ветку `feature/*`, локальное тестирование → мёрж в master → деплой
+- Язык: переключалка RU/EN (i18n Context + JSON-файлы)
