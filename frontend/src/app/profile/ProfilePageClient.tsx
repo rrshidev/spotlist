@@ -1,14 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { api } from '@/lib/api';
-import { Spot, Comment } from '@/types';
+import { Spot, Comment, SavedSpotItem } from '@/types';
 import { SpotCard } from '@/components/SpotCard';
 import { useI18n } from '@/contexts/I18nContext';
-import { User, MapPin, Clock, Loader2, LogOut, Shield } from 'lucide-react';
+import { User, MapPin, Clock, Loader2, LogOut, Shield, BookmarkCheck } from 'lucide-react';
 
 interface UserSpot extends Spot {
   comments_count?: number;
@@ -25,8 +26,9 @@ export default function ProfilePageClient() {
   const router = useRouter();
   const [userSpots, setUserSpots] = useState<UserSpot[]>([]);
   const [userComments, setUserComments] = useState<UserComment[]>([]);
+  const [savedSpots, setSavedSpots] = useState<SavedSpotItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'spots' | 'comments'>('spots');
+  const [activeTab, setActiveTab] = useState<'spots' | 'comments' | 'saved'>('spots');
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -48,6 +50,9 @@ export default function ProfilePageClient() {
         if (commentsRes.ok) {
           setUserComments(await commentsRes.json());
         }
+
+        const saved = await api.wishlist.list();
+        setSavedSpots(saved as SavedSpotItem[]);
       } catch (error) {
         console.error('Failed to fetch profile data:', error);
       } finally {
@@ -144,6 +149,17 @@ export default function ProfilePageClient() {
             >
               {t('profile.tabComments')}
             </button>
+            <button
+              onClick={() => setActiveTab('saved')}
+              className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
+                activeTab === 'saved'
+                  ? 'text-[#00f5ff] border-b-2 border-[#00f5ff]'
+                  : 'text-white/60 hover:text-white'
+              }`}
+            >
+              <BookmarkCheck className="w-4 h-4 inline mr-1" />
+              {t('profile.saved')}
+            </button>
           </div>
 
           <div className="p-4">
@@ -164,6 +180,41 @@ export default function ProfilePageClient() {
                   >
                     {t('profile.addSpot')}
                   </button>
+                </div>
+              )
+            ) : activeTab === 'saved' ? (
+              savedSpots.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {savedSpots.map((item) => (
+                    <Link
+                      key={item.id}
+                      href={`/spots/${item.spot_id}`}
+                      className="group bg-[#0a0a0f] rounded-xl overflow-hidden hover:bg-[#0a0a0f]/80 transition-colors"
+                    >
+                      <div className="relative h-32 bg-gradient-to-br from-[#1f1f2e] to-[#0a0a0f]">
+                        {item.media && item.media[0] ? (
+                          <img
+                            src={item.media[0].startsWith('http') ? item.media[0] : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || ''}${item.media[0]}`}
+                            alt={item.spot_name}
+                            className="w-full h-full object-cover opacity-80"
+                          />
+                        ) : (
+                          <div className="flex items-center justify-center h-full">
+                            <MapPin className="w-8 h-8 text-[#00f5ff]/30" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="p-3">
+                        <p className="font-semibold text-white text-sm group-hover:text-[#00f5ff] transition-colors truncate">{item.spot_name}</p>
+                        <p className="text-xs text-white/50 mt-1">{item.city}</p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <BookmarkCheck className="w-12 h-12 text-white/20 mx-auto mb-4" />
+                  <p className="text-white/60">Нет сохранённых спотов</p>
                 </div>
               )
             ) : userComments.length > 0 ? (

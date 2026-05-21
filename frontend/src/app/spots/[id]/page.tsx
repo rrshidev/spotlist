@@ -8,6 +8,7 @@ import { useI18n } from '@/contexts/I18nContext';
 import { api } from '@/lib/api';
 import { Spot, Comment } from '@/types';
 import { SpotMap } from '@/components/Map';
+import SaveButton from '@/components/SaveButton';
 import { MapPin, Clock, User, ArrowLeft, Edit, Trash2, Flag, Image as ImageIcon, Loader2, Send, X, Reply, Heart, Video, ShieldCheck, ShieldX, ShieldAlert, ShieldQuestion } from 'lucide-react';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
@@ -41,6 +42,7 @@ export default function SpotPage() {
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [commentLikes, setCommentLikes] = useState<Record<string, { liked: boolean; likes_count: number }>>({});
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -55,6 +57,12 @@ export default function SpotPage() {
         setSpotLiked(s.liked);
         setSpotLikesCount(s.likes_count || 0);
         setComments(commentsData as Comment[]);
+        if (isAuthenticated) {
+          try {
+            const { saved: isSaved } = await api.wishlist.check(spotId);
+            setSaved(isSaved);
+          } catch { /* ignore */ }
+        }
       } catch {
         addToast(t('spotDetail.notFound'), 'error');
         router.push('/');
@@ -63,7 +71,7 @@ export default function SpotPage() {
       }
     }
     fetchData();
-  }, [spotId]);
+  }, [spotId, isAuthenticated]);
 
   const handleAddComment = async () => {
     if (!newComment.trim()) return;
@@ -209,8 +217,10 @@ export default function SpotPage() {
                   </div>
                 )}
               </div>
-              {isOwner && (
-                <div className="flex gap-2">
+              <div className="flex gap-2 items-center">
+                <SaveButton spotId={spotId} initialSaved={saved} onToggle={setSaved} size="md" />
+                {isOwner && (
+                <>
                   <button
                     onClick={() => router.push(`/spots/${spotId}/edit`)}
                     className="p-2 rounded-lg bg-[#39ff14]/20 text-[#39ff14] hover:bg-[#39ff14]/30 transition-colors"
@@ -224,8 +234,9 @@ export default function SpotPage() {
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
-                </div>
-              )}
+                </>
+                )}
+              </div>
             </div>
 
             {spot.description && (

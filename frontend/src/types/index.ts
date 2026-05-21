@@ -82,3 +82,15 @@ export interface AuthState {
   token: string | null;
   isAuthenticated: boolean;
 }
+
+export interface SavedSpotItem {
+  id: string;
+  spot_id: string;
+  spot_name: string;
+  city: string;
+  category: string;
+  media: string[];
+  latitude: number;
+  longitude: number;
+  created_at: string;
+}

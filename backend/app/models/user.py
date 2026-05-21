@@ -30,4 +30,5 @@ class User(Base):
     spots = relationship("Spot", back_populates="author", cascade="all, delete-orphan")
     comments = relationship("Comment", back_populates="user", cascade="all, delete-orphan")
     likes = relationship("Like", back_populates="user", cascade="all, delete-orphan")
+    saved_spots = relationship("SavedSpot", back_populates="user", cascade="all, delete-orphan")
     reports = relationship("Report", back_populates="reporter", cascade="all, delete-orphan")

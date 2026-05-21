@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/contexts/I18nContext';
-import { MapPin, Plus, User, LogOut, Shield, Menu, X } from 'lucide-react';
+import { MapPin, Plus, User, LogOut, Shield, Menu, X, BookmarkCheck } from 'lucide-react';
 import { useState } from 'react';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 
@@ -42,6 +42,21 @@ export function Navbar() {
                 >
                   <Plus className="w-4 h-4" />
                   {t('nav.addSpot')}
+                </Link>
+                <Link
+                  href="/wishlist"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1f1f2e] text-[#00f5ff] w-fit"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  <BookmarkCheck className="w-4 h-4" />
+                  Сохранённые
+                </Link>
+                <Link
+                  href="/wishlist"
+                  className="text-white/70 hover:text-[#00f5ff] transition-colors"
+                  title="Сохранённые"
+                >
+                  <BookmarkCheck className="w-5 h-5" />
                 </Link>
                 <Link
                   href="/profile"

@@ -159,6 +159,12 @@ export const api = {
       return response.json();
     },
   },
+
+  wishlist: {
+    toggle: (spotId: string) => request<{ saved: boolean }>(`/wishlist/${spotId}`, { method: 'POST' }),
+    list: () => request<{ id: string; spot_id: string; spot_name: string; city: string; category: string; media: string[]; latitude: number; longitude: number; created_at: string }[]>('/wishlist'),
+    check: (spotId: string) => request<{ saved: boolean }>(`/wishlist/check/${spotId}`),
+  },
 };
 
 export function saveToken(token: string) {

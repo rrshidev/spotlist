@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/contexts/I18nContext';
 import { useToast } from '@/contexts/ToastContext';
 import { MapPin, Clock, Image as ImageIcon, Navigation, Heart, Video, ShieldAlert, ShieldCheck, ShieldX } from 'lucide-react';
+import SaveButton from '@/components/SaveButton';
 
 interface SpotCardProps {
   spot: Spot;
@@ -129,6 +130,10 @@ export function SpotCard({ spot }: SpotCardProps) {
             <Heart className={`w-3 h-3 ${liked ? 'fill-current' : ''}`} />
             {likesCount}
           </button>
+
+          <div className="absolute bottom-3 left-20">
+            <SaveButton spotId={spot.id} size="sm" />
+          </div>
 
           {hasPhotos && (
             <div className="absolute bottom-3 right-3 px-2 py-1 rounded-full bg-black/70 text-xs text-white flex items-center gap-1">
