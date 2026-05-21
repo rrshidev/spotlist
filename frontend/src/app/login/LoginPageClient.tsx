@@ -7,13 +7,16 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { useI18n } from '@/contexts/I18nContext';
 import { MapPin, Mail, Lock, Loader2 } from 'lucide-react';
+import TelegramLoginButton, { type TelegramUser } from '@/components/TelegramLoginButton';
+import { api } from '@/lib/api';
 
 export default function LoginPageClient() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [tgLoading, setTgLoading] = useState(false);
   const router = useRouter();
-  const { login } = useAuth();
+  const { login, loginWithTelegram } = useAuth();
   const { addToast } = useToast();
   const { t } = useI18n();
 
@@ -28,6 +31,22 @@ export default function LoginPageClient() {
       addToast(error instanceof Error ? error.message : t('auth.loginError'), 'error');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleTelegramAuth = async (tgUser: TelegramUser) => {
+    setTgLoading(true);
+    try {
+      const res = await api.telegram.login(tgUser as unknown as Record<string, unknown>);
+      await loginWithTelegram(res.access_token);
+      addToast(t('auth.loginSuccess'), 'success');
+      const redirect = localStorage.getItem('redirectAfterLogin');
+      localStorage.removeItem('redirectAfterLogin');
+      router.push(redirect || '/');
+    } catch (error) {
+      addToast(error instanceof Error ? error.message : t('auth.loginError'), 'error');
+    } finally {
+      setTgLoading(false);
     }
   };
 
@@ -77,6 +96,20 @@ export default function LoginPageClient() {
               {t('auth.submitLogin')}
             </button>
           </form>
+
+          <div className="mt-6 mb-6 flex items-center gap-3">
+            <div className="flex-1 h-px bg-[#1f1f2e]" />
+            <span className="text-xs text-white/40">или</span>
+            <div className="flex-1 h-px bg-[#1f1f2e]" />
+          </div>
+
+          <div className="flex justify-center">
+            {tgLoading ? (
+              <Loader2 className="w-8 h-8 text-[#39ff14] animate-spin" />
+            ) : (
+              <TelegramLoginButton onAuth={handleTelegramAuth} />
+            )}
+          </div>
 
           <p className="text-center text-white/50 mt-6">
             {t('auth.noAccount')}{' '}

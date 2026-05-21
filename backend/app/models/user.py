@@ -26,6 +26,8 @@ class User(Base):
     city = Column(String(100), nullable=True)
     skating_style = Column(String(255), nullable=True)
     bio = Column(String(500), nullable=True)
+    telegram_id = Column(String(50), unique=True, nullable=True, index=True)
+    telegram_username = Column(String(100), nullable=True)
 
     spots = relationship("Spot", back_populates="author", cascade="all, delete-orphan")
     comments = relationship("Comment", back_populates="user", cascade="all, delete-orphan")

@@ -23,6 +23,8 @@ class UserUpdate(BaseModel):
     city: Optional[str] = None
     skating_style: Optional[str] = None
     bio: Optional[str] = None
+    telegram_id: Optional[str] = None
+    telegram_username: Optional[str] = None
 
 
 class UserResponse(UserBase):
@@ -34,6 +36,8 @@ class UserResponse(UserBase):
     city: Optional[str] = None
     skating_style: Optional[str] = None
     bio: Optional[str] = None
+    telegram_id: Optional[str] = None
+    telegram_username: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -50,7 +54,9 @@ class UserResponse(UserBase):
             avatar=obj.avatar,
             city=obj.city,
             skating_style=obj.skating_style,
-            bio=obj.bio
+            bio=obj.bio,
+            telegram_id=obj.telegram_id,
+            telegram_username=obj.telegram_username
         )
 
 

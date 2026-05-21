@@ -145,14 +145,17 @@ c:/Projects/spotlist/
 **Суть:** вход в один клик через Telegram — убирает барьер "придумать пароль".
 
 **Backend:**
-- [ ] Создать Telegram бота (BotFather)
-- [ ] Endpoint `POST /auth/telegram` — верификация Telegram Login Widget
-- [ ] JWT после успешного входа
-- [ ] Link/unlink Telegram в профиле
+- [x] Эндпоинты: `POST /auth/telegram`, `POST /auth/telegram/link`, `DELETE /auth/telegram/link`
+- [x] Верификация HMAC-SHA256 данных от Telegram Widget
+- [x] Автосоздание пользователя при первом входе
+- [x] Колонки `telegram_id`, `telegram_username` в User
+- [x] JWT после успешного входа
 
 **Frontend:**
-- [ ] Кнопка "Войти через Telegram" на /login и /register
-- [ ] Настройки: привязать/отвязать Telegram
+- [x] TelegramLoginButton (Telegram Login Widget)
+- [x] Страница /login: кнопка "Войти через Telegram"
+- [x] Профиль: привязать/отвязать Telegram в настройках
+- [ ] ⏳ **Настроить бота в BotFather** (шаг ниже)
 
 ### 2.3 PWA + Push-уведомления
 

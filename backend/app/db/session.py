@@ -31,3 +31,5 @@ async def init_db():
         await conn.execute(text("ALTER TABLE spots ADD COLUMN IF NOT EXISTS video VARCHAR(500)"))
         await conn.execute(text("ALTER TABLE spots ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'unknown'"))
         await conn.execute(text("ALTER TABLE spots ADD COLUMN IF NOT EXISTS last_status_at TIMESTAMP WITH TIME ZONE"))
+        await conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS telegram_id VARCHAR(50)"))
+        await conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS telegram_username VARCHAR(100)"))

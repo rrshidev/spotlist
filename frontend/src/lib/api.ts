@@ -165,6 +165,15 @@ export const api = {
     list: () => request<{ id: string; spot_id: string; spot_name: string; city: string; category: string; media: string[]; latitude: number; longitude: number; created_at: string }[]>('/wishlist'),
     check: (spotId: string) => request<{ saved: boolean }>(`/wishlist/check/${spotId}`),
   },
+
+  telegram: {
+    login: (data: Record<string, unknown>) =>
+      request<{ access_token: string; token_type: string }>('/auth/telegram', { method: 'POST', body: JSON.stringify(data) }),
+    link: (data: Record<string, unknown>) =>
+      request<{ status: string; telegram_username: string }>('/auth/telegram/link', { method: 'POST', body: JSON.stringify(data) }),
+    unlink: () =>
+      request<{ status: string }>('/auth/telegram/link', { method: 'DELETE' }),
+  },
 };
 
 export function saveToken(token: string) {

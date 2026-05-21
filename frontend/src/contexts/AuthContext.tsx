@@ -9,6 +9,7 @@ interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
+  loginWithTelegram: (token: string) => Promise<void>;
   register: (email: string, username: string, password: string) => Promise<void>;
   logout: () => void;
   setUser: (user: User | null) => void;
@@ -40,6 +41,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(userData as User);
   };
 
+  const loginWithTelegram = async (token: string) => {
+    saveToken(token);
+    const userData = await api.auth.me();
+    setUser(userData as User);
+  };
+
   const register = async (email: string, username: string, password: string) => {
     await api.auth.register({ email, username, password });
     await login(email, password);
@@ -56,6 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isLoading,
       isAuthenticated: !!user,
       login,
+      loginWithTelegram,
       register,
       logout,
       setUser,

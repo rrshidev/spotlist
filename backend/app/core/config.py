@@ -19,6 +19,9 @@ class Settings(BaseSettings):
 
     NOMINATIM_URL: str = "https://nominatim.openstreetmap.org"
 
+    TELEGRAM_BOT_TOKEN: str = ""
+    TELEGRAM_BOT_USERNAME: str = ""
+
     class Config:
         env_file = ".env"
         case_sensitive = True

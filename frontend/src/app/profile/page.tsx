@@ -8,7 +8,8 @@ import { api } from '@/lib/api';
 import { Spot, User } from '@/types';
 import { SpotCard } from '@/components/SpotCard';
 import { useI18n } from '@/contexts/I18nContext';
-import { User as UserIcon, MapPin, Loader2, LogOut, Shield, Edit, Camera, MapPinned, Activity, FileText, Save, X } from 'lucide-react';
+import { User as UserIcon, MapPin, Loader2, LogOut, Shield, Edit, Camera, MapPinned, Activity, FileText, Save, X, MessageCircle } from 'lucide-react';
+import TelegramLoginButton, { type TelegramUser } from '@/components/TelegramLoginButton';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 
@@ -350,6 +351,51 @@ export default function ProfilePage() {
               </div>
             ) : (
               <div className="space-y-4">
+                {user.telegram_id ? (
+                  <div className="p-4 bg-[#0a0a0f] rounded-xl">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <MessageCircle className="w-5 h-5 text-[#39ff14]" />
+                        <div>
+                          <p className="text-white text-sm font-medium">Telegram</p>
+                          <p className="text-white/40 text-xs">@{user.telegram_username || 'связан'}</p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={async () => {
+                          try {
+                            await api.telegram.unlink();
+                            const userData = await api.auth.me();
+                            setUser(userData as User);
+                            addToast('Telegram отвязан', 'success');
+                          } catch {
+                            addToast('Ошибка', 'error');
+                          }
+                        }}
+                        className="px-3 py-1.5 rounded-lg bg-red-500/20 text-red-400 text-sm hover:bg-red-500/30 transition-colors"
+                      >
+                        Отвязать
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-4 bg-[#0a0a0f] rounded-xl">
+                    <p className="text-white text-sm font-medium mb-3">Привязать Telegram</p>
+                    <TelegramLoginButton
+                      onAuth={async (tgUser: TelegramUser) => {
+                        try {
+                          await api.telegram.link(tgUser as unknown as Record<string, unknown>);
+                          const userData = await api.auth.me();
+                          setUser(userData as User);
+                          addToast('Telegram привязан', 'success');
+                        } catch {
+                          addToast('Ошибка', 'error');
+                        }
+                      }}
+                      buttonSize="small"
+                    />
+                  </div>
+                )}
                 <button
                   onClick={logout}
                   className="w-full p-4 bg-red-500/10 rounded-xl text-left flex items-center justify-between text-red-400 hover:bg-red-500/20 transition-colors"
