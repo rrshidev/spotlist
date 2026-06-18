@@ -84,6 +84,24 @@ async def login(
     return Token(access_token=access_token)
 
 
+@router.get("/me", response_model=UserResponse)
+async def get_me(current_user: User = Depends(get_current_user)):
+    return UserResponse.from_orm(current_user)
+
+
+@router.put("/me", response_model=UserResponse)
+async def update_me(
+    user_data: UserUpdate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    for field, value in user_data.model_dump(exclude_unset=True).items():
+        setattr(current_user, field, value)
+    await db.commit()
+    await db.refresh(current_user)
+    return UserResponse.from_orm(current_user)
+
+
 @router.post("/telegram", response_model=Token)
 async def telegram_login(
     data: dict,
