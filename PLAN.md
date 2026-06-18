@@ -123,24 +123,23 @@ c:/Projects/spotlist/
 
 > **Стратегия:** превратить визитёра в зарегистрированного пользователя, дать причины возвращаться, создать виральность.
 
-### 2.1 Wishlist / Saved spots ⬅️ СЕЙЧАС
+### 2.1 Wishlist / Saved spots ✅
 
 **Суть:** мотивация зарегиться — сохранить спот в коллекцию. Незарегистрированный видит ☆, нажимает → ему предлагают войти/зарегаться. После регистрации сразу показывает сохранённые споты.
 
 **Backend:**
-- [ ] Модель `SavedSpot` (user_id, spot_id, created_at)
-- [ ] `POST /wishlist/{spot_id}` — сохранить
-- [ ] `DELETE /wishlist/{spot_id}` — удалить
-- [ ] `GET /wishlist` — мои сохранённые
-- [ ] `GET /spots/{id}/saved` — проверка, сохранён ли спот (is_saved)
+- [x] Модель `SavedSpot` (user_id, spot_id, created_at)
+- [x] `POST /wishlist/{spot_id}` — сохранить/удалить
+- [x] `GET /wishlist` — мои сохранённые
+- [x] `GET /wishlist/check/{spot_id}` — проверка
 
 **Frontend:**
-- [ ] SaveButton (☆ / ★) на SpotCard и SpotDetail
-- [ ] Unauthenticated → редирект на /login с сообщением "Сохрани спот — войди в аккаунт"
-- [ ] Страница `/wishlist` (список сохранённых спотов)
-- [ ] Профиль: вкладка "Сохранённые"
+- [x] SaveButton (☆ / ★) на SpotCard и SpotDetail
+- [x] Unauthenticated → редирект на /login
+- [x] Страница `/wishlist`
+- [x] Профиль: вкладка "Сохранённые"
 
-### 2.2 Telegram login
+### 2.2 Telegram login ✅
 
 **Суть:** вход в один клик через Telegram — убирает барьер "придумать пароль".
 
@@ -155,7 +154,7 @@ c:/Projects/spotlist/
 - [x] TelegramLoginButton (Telegram Login Widget)
 - [x] Страница /login: кнопка "Войти через Telegram"
 - [x] Профиль: привязать/отвязать Telegram в настройках
-- [ ] ⏳ **Настроить бота в BotFather** (шаг ниже)
+- [x] BotFather: /setdomain настроен (spotlist.online)
 
 ### 2.3 PWA + Push-уведомления
 
@@ -196,8 +195,13 @@ c:/Projects/spotlist/
 
 **Суть:** наполнить карту реальными спотами, сделать каждый спот "расшариваемым".
 
+**Сделано:**
+- [x] **ETL-скрипт** `scripts/import_spotmap.py` — импорт с `spotmap.ru` через открытое API
+- [x] **369 спотов** импортировано (областные центры РФ, ride types, 1 фото)
+- [x] Админ-аккаунт для наполнения контента
+
 **Действия (не код):**
-- [ ] Добавить 15-20 спотов в своём городе с фото
+- [ ] Добавить 15-20 спотов в своём городе с фото (вручную)
 - [ ] Попросить знакомых райдеров добавить свои
 - [ ] Создать Telegram-канал / чат сообщества
 - [ ] Наклейки с QR-кодом на реальных спотах
@@ -258,14 +262,15 @@ c:/Projects/spotlist/
 - [x] i18n RU/EN
 - [x] Деплой на spotlist.online
 
-### Phase 2
-- [ ] **2.1 Wishlist / Saved spots** ⬅️
-- [ ] 2.2 Telegram login
-- [ ] 2.3 PWA + Push
+### Phase 2 — Growth ✅
+- [x] **2.1 Wishlist / Saved spots**
+- [x] 2.2 Telegram login
+- [ ] **2.3 PWA + Push** ⬅️
 - [ ] 2.4 Геймификация
 
-### Phase 3
-- [ ] 3.1 Seed-контент + Шеринг
+### Phase 3 — Viral
+- [x] 3.1 Seed-контент (369 спотов импортировано)
+- [ ] 3.1 Шеринг (OG, Share button)
 - [ ] 3.2 SEO
 - [ ] 3.3 Уведомления (доп. сценарии)
 
