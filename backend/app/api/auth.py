@@ -37,8 +37,15 @@ def _verify_telegram_auth(data: dict) -> bool:
     )
     check_string = "\n".join(f"{k}={v}" for k, v in items)
 
+    print(f"DEBUG: data={dict(data)}", flush=True)
+    print(f"DEBUG: check_string={check_string!r}", flush=True)
+    print(f"DEBUG: received_hash={received_hash}", flush=True)
+
     secret_key = hmac.new(bot_token.encode(), b"WebAppData", hashlib.sha256).digest()
     computed_hash = hmac.new(secret_key, check_string.encode(), hashlib.sha256).hexdigest()
+
+    print(f"DEBUG: computed_hash={computed_hash}", flush=True)
+    print(f"DEBUG: match={computed_hash == received_hash}", flush=True)
 
     return computed_hash == received_hash
 
