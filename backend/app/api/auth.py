@@ -31,7 +31,10 @@ def _verify_telegram_auth(data: dict) -> bool:
     if not received_hash:
         return False
 
-    items = sorted(data.items())
+    items = sorted(
+        (k, str(v)) for k, v in data.items()
+        if v is not None and v != ""
+    )
     check_string = "\n".join(f"{k}={v}" for k, v in items)
 
     secret_key = hmac.new(bot_token.encode(), b"WebAppData", hashlib.sha256).digest()
