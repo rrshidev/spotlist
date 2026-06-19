@@ -29,11 +29,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const description = spot.description
     ? spot.description.replace(/<[^>]+>/g, '').slice(0, 200)
     : `Спот для катания в ${spot.city || 'городе'}`;
-  const imageUrl = spot.media?.[0]
+  let imageUrl = spot.media?.[0]
     ? (spot.media[0].startsWith('http') ? spot.media[0] : `${siteUrl}${spot.media[0]}`)
     : spot.screenshot
     ? (spot.screenshot.startsWith('http') ? spot.screenshot : `${siteUrl}${spot.screenshot}`)
-    : `${siteUrl}/og-default.png`;
+    : '';
+
+  const ext = imageUrl.split('.').pop()?.toLowerCase();
+  const telegramSupported = ext && ['jpg', 'jpeg', 'png', 'gif', 'bmp'].includes(ext);
+  if (!telegramSupported) {
+    imageUrl = '';
+  }
 
   return {
     title: `${spot.name} - SpotList`,
@@ -43,13 +49,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description,
       url: spotUrl,
       type: 'website',
-      images: [{ url: imageUrl, width: 1200, height: 630 }],
+      ...(imageUrl ? { images: [{ url: imageUrl, width: 1200, height: 630 }] } : {}),
     },
     twitter: {
       card: 'summary_large_image',
       title: `${spot.name} - SpotList`,
       description,
-      images: [imageUrl],
+      ...(imageUrl ? { images: [imageUrl] } : {}),
     },
   };
 }
