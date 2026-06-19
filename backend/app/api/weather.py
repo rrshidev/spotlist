@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from fastapi import APIRouter, HTTPException
 from sqlalchemy import text
 from app.core.config import settings
-from app.db.session import async_session
+from app.db.session import async_session_maker
 
 router = APIRouter(prefix="/spots", tags=["weather"])
 
@@ -12,7 +12,7 @@ CACHE_TTL = timedelta(minutes=30)
 
 
 async def get_spot_coords(spot_id: str) -> tuple[float, float]:
-    async with async_session() as session:
+    async with async_session_maker() as session:
         result = await session.execute(
             text("SELECT latitude, longitude FROM spots WHERE id = :id"),
             {"id": spot_id},
