@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-const BOT_UA = /bot|telegram|twitter|facebook|slack|discord|whatsapp|pinterest|linkedin|viber|pocket|flipboard|tumblr|reddit|skype|embedly|google.*snippet|slack.*link/i;
+const BOT_UA = /bot|telegram|twitter|facebook|slack|discord|whatsapp|pinterest|linkedin|viber|pocket|flipboard|tumblr|reddit|skype|embedly|google.*snippet|slack.*link|metatags/i;
 
 export const config = {
   matcher: '/spots/:id',
@@ -33,14 +33,20 @@ export async function middleware(req: NextRequest) {
       ? spot.description.replace(/<[^>]+>/g, '').slice(0, 300)
       : `Спот для катания в ${spot.city || 'городе'}`;
 
-    const imageUrl = spot.media?.[0]
+    let imageUrl = spot.media?.[0]
       ? (spot.media[0].startsWith('http') ? spot.media[0] : `${siteUrl}${spot.media[0]}`)
       : spot.screenshot
       ? (spot.screenshot.startsWith('http') ? spot.screenshot : `${siteUrl}${spot.screenshot}`)
       : '';
 
     const ext = imageUrl.split('.').pop()?.toLowerCase();
-    const hasImage = ext && ['jpg', 'jpeg', 'png', 'gif', 'bmp'].includes(ext);
+    const hasSupportedImage = ext && ['jpg', 'jpeg', 'png', 'gif', 'bmp'].includes(ext);
+
+    if (!hasSupportedImage && imageUrl) {
+      imageUrl = `${siteUrl}/api/og?title=${encodeURIComponent(spot.name)}&image=${encodeURIComponent(imageUrl)}`;
+    }
+
+    const hasImage = !!imageUrl;
 
     const html = `<!DOCTYPE html>
 <html lang="ru">
@@ -53,6 +59,7 @@ export async function middleware(req: NextRequest) {
   <meta property="og:description" content="${escapeHtml(description)}"/>
   <meta property="og:url" content="${escapeHtml(spotUrl)}"/>
   <meta property="og:type" content="website"/>
+  <meta property="og:site_name" content="SpotList"/>
   ${hasImage ? `<meta property="og:image" content="${escapeHtml(imageUrl)}"/>` : ''}
   ${hasImage ? '<meta property="og:image:width" content="1200"/>' : ''}
   ${hasImage ? '<meta property="og:image:height" content="630"/>' : ''}
@@ -60,12 +67,11 @@ export async function middleware(req: NextRequest) {
   <meta name="twitter:title" content="${escapeHtml(spot.name)} - SpotList"/>
   <meta name="twitter:description" content="${escapeHtml(description)}"/>
   ${hasImage ? `<meta name="twitter:image" content="${escapeHtml(imageUrl)}"/>` : ''}
-  <meta http-equiv="refresh" content="0;url=${escapeHtml(spotUrl)}"/>
 </head>
 <body>
   <h1>${escapeHtml(spot.name)}</h1>
   <p>${escapeHtml(description)}</p>
-  <p><a href="${escapeHtml(spotUrl)}">Перейти на SpotList</a></p>
+  <p><a href="${escapeHtml(spotUrl)}">${escapeHtml(spotUrl)}</a></p>
 </body>
 </html>`;
 

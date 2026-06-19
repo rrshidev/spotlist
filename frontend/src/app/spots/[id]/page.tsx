@@ -36,10 +36,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     : '';
 
   const ext = imageUrl.split('.').pop()?.toLowerCase();
-  const telegramSupported = ext && ['jpg', 'jpeg', 'png', 'gif', 'bmp'].includes(ext);
-  if (!telegramSupported) {
-    imageUrl = '';
+  const supportedExt = ext && ['jpg', 'jpeg', 'png', 'gif', 'bmp'].includes(ext);
+
+  if (!supportedExt && imageUrl) {
+    imageUrl = `${siteUrl}/api/og?title=${encodeURIComponent(spot.name)}&image=${encodeURIComponent(imageUrl)}`;
   }
+
+  const hasImage = !!imageUrl;
 
   return {
     title: `${spot.name} - SpotList`,
@@ -49,13 +52,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description,
       url: spotUrl,
       type: 'website',
-      ...(imageUrl ? { images: [{ url: imageUrl, width: 1200, height: 630 }] } : {}),
+      siteName: 'SpotList',
+      ...(hasImage ? { images: [{ url: imageUrl, width: 1200, height: 630 }] } : {}),
     },
     twitter: {
       card: 'summary_large_image',
       title: `${spot.name} - SpotList`,
       description,
-      ...(imageUrl ? { images: [imageUrl] } : {}),
+      ...(hasImage ? { images: [imageUrl] } : {}),
     },
   };
 }
