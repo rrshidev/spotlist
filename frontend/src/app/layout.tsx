@@ -20,10 +20,7 @@ export default function RootLayout({
 
   return (
     <html lang="en">
-      <body>
-        <script dangerouslySetInnerHTML={{
-          __html: `window.addEventListener('beforeinstallprompt',(e)=>{e.preventDefault();window.__pwaPrompt=e;});`
-        }} />
+      <head>
         {ymId ? (
           <script
             dangerouslySetInnerHTML={{
@@ -58,6 +55,11 @@ ym(${ymId}, 'init', {
             </div>
           </noscript>
         ) : null}
+      </head>
+      <body>
+        <script dangerouslySetInnerHTML={{
+          __html: `window.addEventListener('beforeinstallprompt',(e)=>{e.preventDefault();window.__pwaPrompt=e;});`
+        }} />
         <Providers>{children}</Providers>
       </body>
     </html>
