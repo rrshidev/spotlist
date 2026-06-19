@@ -22,6 +22,9 @@ class Settings(BaseSettings):
     TELEGRAM_BOT_TOKEN: str = ""
     TELEGRAM_BOT_USERNAME: str = ""
 
+    OPENWEATHERMAP_API_KEY: str = ""
+    OPENWEATHERMAP_BASE_URL: str = "https://api.openweathermap.org/data/2.5"
+
     class Config:
         env_file = ".env"
         case_sensitive = True

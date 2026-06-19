@@ -153,3 +153,13 @@ export interface SessionListResponse {
   page: number;
   page_size: number;
 }
+
+export interface WeatherData {
+  temp: number;
+  feels_like: number;
+  humidity: number;
+  wind_speed: number;
+  description: string;
+  icon: string;
+  condition: string;
+}

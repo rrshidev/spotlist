@@ -353,6 +353,11 @@
     "createOnSpot": "Create session at this spot",
     "spotsSessions": "Sessions"
   },
+  "weather": {
+    "title": "Weather",
+    "feelsLike": "Feels like",
+    "mps": "m/s"
+  },
   "common": {
     "geoError": "Failed to get location"
   }

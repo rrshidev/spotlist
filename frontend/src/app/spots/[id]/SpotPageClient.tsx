@@ -10,6 +10,7 @@ import { Spot, Comment } from '@/types';
 import { SpotMap } from '@/components/Map';
 import SaveButton from '@/components/SaveButton';
 import { SpotSessions } from '@/components/SpotSessions';
+import { SpotWeather } from '@/components/SpotWeather';
 import { MapPin, Clock, User, ArrowLeft, Edit, Trash2, Flag, Image as ImageIcon, Loader2, Send, X, Reply, Heart, Video, ShieldCheck, ShieldX, ShieldAlert, ShieldQuestion, Share2, Check, CalendarDays } from 'lucide-react';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
@@ -384,6 +385,8 @@ export default function SpotPageClient() {
                 </p>
               )}
             </div>
+
+            <SpotWeather spotId={spotId} />
 
             {spot.address && (
               <div className="mt-4 p-4 bg-[#0a0a0f] rounded-xl">

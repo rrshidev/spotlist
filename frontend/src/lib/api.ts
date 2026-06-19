@@ -1,4 +1,4 @@
-import { SpotListResponse, RentalListResponse, SessionListResponse } from '@/types';
+import { SpotListResponse, RentalListResponse, SessionListResponse, WeatherData } from '@/types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 
@@ -213,6 +213,10 @@ export const api = {
       request<{ status: string; telegram_username: string }>('/auth/telegram/link', { method: 'POST', body: JSON.stringify(data) }),
     unlink: () =>
       request<{ status: string }>('/auth/telegram/link', { method: 'DELETE' }),
+  },
+
+  weather: {
+    get: (spotId: string) => request<WeatherData>(`/spots/${spotId}/weather`),
   },
 
   sessions: {
