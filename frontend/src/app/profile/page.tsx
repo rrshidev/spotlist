@@ -8,7 +8,7 @@ import { api } from '@/lib/api';
 import { Spot, User } from '@/types';
 import { SpotCard } from '@/components/SpotCard';
 import { useI18n } from '@/contexts/I18nContext';
-import { User as UserIcon, MapPin, Loader2, LogOut, Shield, Edit, Camera, MapPinned, Activity, FileText, Save, X, MessageCircle } from 'lucide-react';
+import { User as UserIcon, MapPin, Loader2, LogOut, Shield, Edit, Camera, MapPinned, Activity, FileText, Save, X, MessageCircle, Copy, Check, Users } from 'lucide-react';
 import TelegramLoginButton, { type TelegramUser } from '@/components/TelegramLoginButton';
 import { PushPrompt } from '@/components/PushPrompt';
 
@@ -20,6 +20,56 @@ function getAvatarUrl(avatar: string | null | undefined): string {
   if (av.startsWith('http')) return av;
   const baseUrl = API_URL.replace('/api/v1', '');
   return baseUrl + av;
+}
+
+function ReferralSection() {
+  const { t } = useI18n();
+  const { user } = useAuth();
+  const [copied, setCopied] = useState(false);
+
+  if (!user) return null;
+
+  const refLink = `${window.location.origin}?ref=${user.id}`;
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(refLink);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      /* fallback */
+    }
+  };
+
+  return (
+    <div className="p-4 bg-[#0a0a0f] rounded-xl">
+      <div className="flex items-center gap-3 mb-3">
+        <Users className="w-5 h-5 text-[#00f5ff]" />
+        <div>
+          <p className="text-white text-sm font-medium">{t('referral.title')}</p>
+          <p className="text-white/40 text-xs">{t('referral.subtitle')}</p>
+        </div>
+      </div>
+      <div className="flex items-center gap-2">
+        <input
+          type="text"
+          readOnly
+          value={refLink}
+          className="flex-1 bg-[#12121a] border border-[#1f1f2e] rounded-lg px-3 py-2 text-white/70 text-xs font-mono outline-none"
+        />
+        <button
+          onClick={handleCopy}
+          className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#1f1f2e] hover:bg-[#2a2a3e] transition-colors text-white/60 hover:text-white text-xs"
+        >
+          {copied ? (
+            <><Check className="w-3.5 h-3.5 text-[#39ff14]" /> {t('referral.copied')}</>
+          ) : (
+            <><Copy className="w-3.5 h-3.5" /> {t('referral.copy')}</>
+          )}
+        </button>
+      </div>
+    </div>
+  );
 }
 
 export default function ProfilePage() {
@@ -352,6 +402,7 @@ export default function ProfilePage() {
               </div>
             ) : (
               <div className="space-y-4">
+                <ReferralSection />
                   <PushPrompt />
                   
                 {user.telegram_id ? (

@@ -6,6 +6,9 @@ import { MapProvider } from '@/contexts/MapContext';
 import { ToastProvider } from '@/contexts/ToastContext';
 import { I18nProvider } from '@/contexts/I18nContext';
 import { Navbar } from '@/components/Navbar';
+import { InstallPrompt } from '@/components/InstallPrompt';
+import { YandexMetrica } from '@/components/YandexMetrica';
+import { UTMTracker } from '@/components/UTMTracker';
 import { Toaster } from '@/components/Toaster';
 import { Loader2 } from 'lucide-react';
 
@@ -68,6 +71,9 @@ export function Providers({ children }: { children: ReactNode }) {
           <MapProvider>
             <Navbar />
             <main className="flex-1">{children}</main>
+            <InstallPrompt />
+            <UTMTracker />
+            <YandexMetrica />
             <Toaster />
           </MapProvider>
         </AuthProvider>

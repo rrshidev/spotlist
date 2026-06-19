@@ -47,6 +47,7 @@ services:
       args:
         NEXT_PUBLIC_TELEGRAM_BOT_USERNAME: ${TELEGRAM_BOT_USERNAME:-}
         NEXT_PUBLIC_DONATE_PHONE: ${NEXT_PUBLIC_DONATE_PHONE:-}
+        NEXT_PUBLIC_YM_COUNTER_ID: ${NEXT_PUBLIC_YM_COUNTER_ID:-}
     restart: unless-stopped
     ports:
       - "3000:3000"
@@ -54,6 +55,7 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
       NEXT_PUBLIC_TELEGRAM_BOT_USERNAME: ${TELEGRAM_BOT_USERNAME:-}
       NEXT_PUBLIC_DONATE_PHONE: ${NEXT_PUBLIC_DONATE_PHONE:-}
+      NEXT_PUBLIC_YM_COUNTER_ID: ${NEXT_PUBLIC_YM_COUNTER_ID:-}
     depends_on:
       - backend
 

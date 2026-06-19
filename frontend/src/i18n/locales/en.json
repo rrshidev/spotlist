@@ -389,6 +389,13 @@
     "thankYou": "Thank you for your support!",
     "navLink": "Donate"
   },
+  "referral": {
+    "title": "Invite friends",
+    "subtitle": "Share the link — let more people find their spots",
+    "linkLabel": "Your referral link",
+    "copy": "Copy",
+    "copied": "Copied!"
+  },
   "installPrompt": {
     "title": "Install SpotList",
     "subtitle": "Add to home screen for quick access",
