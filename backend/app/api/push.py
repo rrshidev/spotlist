@@ -48,16 +48,18 @@ async def subscribe(
         {"endpoint": endpoint},
     )
 
+    sub_json = json.dumps(subscription)
+
     await session.execute(
         text("""
             INSERT INTO push_subscriptions (id, user_id, endpoint, subscription, created_at)
-            VALUES (:id, :user_id, :endpoint, :subscription, NOW())
+            VALUES (:id, :user_id, :endpoint, CAST(:subscription AS json), NOW())
         """),
         {
             "id": uuid.uuid4().hex[:36],
             "user_id": current_user.id,
             "endpoint": endpoint,
-            "subscription": json.dumps(subscription),
+            "subscription": sub_json,
         },
     )
 
@@ -100,7 +102,7 @@ async def send_test(
     if not row:
         raise HTTPException(status_code=404, detail="No subscription found")
 
-    sub = json.loads(row[0])
+    sub = row[0] if isinstance(row[0], dict) else json.loads(row[0])
 
     try:
         from pywebpush import webpush, WebPushException
