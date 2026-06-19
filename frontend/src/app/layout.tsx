@@ -1,6 +1,5 @@
 import './globals.css';
 import { Providers } from './providers';
-import { YandexMetricaClient } from '@/components/YandexMetricaClient';
 
 export const metadata = {
   title: 'SpotList',
@@ -21,25 +20,48 @@ export default function RootLayout({
 
   return (
     <html lang="en">
-      <head>
-        {ymId ? (
-          <noscript>
-            <div>
-              <img
-                src={`https://mc.yandex.ru/watch/${ymId}`}
-                style={{ position: 'absolute', left: '-9999px' }}
-                alt=""
-              />
-            </div>
-          </noscript>
-        ) : null}
-      </head>
       <body>
         <script dangerouslySetInnerHTML={{
           __html: `window.addEventListener('beforeinstallprompt',(e)=>{e.preventDefault();window.__pwaPrompt=e;});`
         }} />
         <Providers>{children}</Providers>
-        {ymId ? <YandexMetricaClient /> : null}
+        {ymId ? (
+          <>
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `
+(function(m,e,t,r,i,k,a){
+  m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+  m[i].l=1*new Date();
+  k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+})(window, document,'script','https://mc.yandex.ru/metrika/tag.js','ym');
+
+ym(${ymId}, 'init', {
+  clickmap:true,
+  trackLinks:true,
+  accurateTrackBounce:true,
+  webvisor:true
+});
+
+window.addEventListener('load', function() {
+  setTimeout(function() {
+    ym(${ymId}, 'hit', location.href);
+  }, 500);
+});
+                `.trim(),
+              }}
+            />
+            <noscript>
+              <div>
+                <img
+                  src={`https://mc.yandex.ru/watch/${ymId}`}
+                  style={{ position: 'absolute', left: '-9999px' }}
+                  alt=""
+                />
+              </div>
+            </noscript>
+          </>
+        ) : null}
       </body>
     </html>
   );
