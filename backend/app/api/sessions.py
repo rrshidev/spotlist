@@ -262,6 +262,16 @@ async def join_session(
     db.add(participant)
     await db.commit()
 
+    if session.creator_id != current_user.id:
+        from app.services.push_service import send_push
+        await send_push(
+            db,
+            user_id=session.creator_id,
+            title="Новый участник",
+            body=f"{current_user.username} присоединился к «{session.title}»",
+            url=f"/sessions/{session_id}",
+        )
+
     fresh = await db.execute(
         select(Session).where(Session.id == session_id).options(*_load_options())
     )

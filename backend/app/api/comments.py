@@ -78,8 +78,9 @@ async def create_comment(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    result = await db.execute(select(Spot).where(Spot.id == spot_id))
-    if not result.scalar_one_or_none():
+    spot_result = await db.execute(select(Spot).where(Spot.id == spot_id))
+    spot = spot_result.scalar_one_or_none()
+    if not spot:
         raise HTTPException(status_code=404, detail="Spot not found")
 
     if comment_data.parent_id:
@@ -98,6 +99,16 @@ async def create_comment(
     db.add(comment)
     await db.commit()
     await db.refresh(comment)
+
+    if comment.user_id != spot.author_id:
+        from app.services.push_service import send_push
+        await send_push(
+            db,
+            user_id=spot.author_id,
+            title="Новый комментарий",
+            body=f"{current_user.username} оставил комментарий на «{spot.name}»",
+            url=f"/spots/{spot_id}",
+        )
 
     return CommentResponse(
         id=str(comment.id),
