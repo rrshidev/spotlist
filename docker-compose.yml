@@ -46,12 +46,14 @@ services:
       dockerfile: Dockerfile
       args:
         NEXT_PUBLIC_TELEGRAM_BOT_USERNAME: ${TELEGRAM_BOT_USERNAME:-}
+        NEXT_PUBLIC_DONATE_PHONE: ${NEXT_PUBLIC_DONATE_PHONE:-}
     restart: unless-stopped
     ports:
       - "3000:3000"
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
       NEXT_PUBLIC_TELEGRAM_BOT_USERNAME: ${TELEGRAM_BOT_USERNAME:-}
+      NEXT_PUBLIC_DONATE_PHONE: ${NEXT_PUBLIC_DONATE_PHONE:-}
     depends_on:
       - backend
 
