@@ -24,7 +24,7 @@ export function HomePageClient() {
       setLoading(true);
       try {
         const params: Parameters<typeof api.spots.list>[0] = {};
-        
+
         if (city) {
           params.city = city;
         } else if (detectedCity) {
@@ -34,7 +34,7 @@ export function HomePageClient() {
           params.lon = location.lon;
           params.radius = radius;
         }
-        
+
         if (category) {
           params.category = category;
         }
@@ -60,13 +60,10 @@ export function HomePageClient() {
       }
     }
 
-    if (!locationLoading && hasFilter) {
+    if (!locationLoading) {
       fetchSpots();
-    } else if (!locationLoading && !hasFilter) {
-      setLoading(false);
-      setSpots([]);
     }
-  }, [location, radius, category, city, detectedCity, rideType, locationLoading, hasFilter]);
+  }, [location, radius, category, city, detectedCity, rideType, locationLoading]);
 
   return (
     <div className="flex flex-col h-full">
@@ -123,12 +120,10 @@ export function HomePageClient() {
             <div className="flex flex-col items-center justify-center h-64 text-center">
               <MapPin className="w-16 h-16 text-white/20 mb-4" />
               <h3 className="text-xl font-semibold text-white/60 mb-2">
-                {hasFilter ? t('home.notFound') : t('home.selectCity')}
+                {t('home.notFound')}
               </h3>
               <p className="text-white/40">
-                {hasFilter
-                  ? t('home.changeFilters')
-                  : t('home.useSearch')}
+                {t('home.changeFilters')}
               </p>
             </div>
           ) : (
