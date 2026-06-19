@@ -389,6 +389,11 @@
     "thankYou": "Thank you for your support!",
     "navLink": "Donate"
   },
+  "installPrompt": {
+    "title": "Install SpotList",
+    "subtitle": "Add to home screen for quick access",
+    "install": "Install"
+  },
   "common": {
     "geoError": "Failed to get location"
   }

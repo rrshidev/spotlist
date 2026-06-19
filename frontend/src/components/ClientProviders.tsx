@@ -5,6 +5,7 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { MapProvider } from '@/contexts/MapContext';
 import { ToastProvider } from '@/contexts/ToastContext';
 import { Navbar } from '@/components/Navbar';
+import { InstallPrompt } from '@/components/InstallPrompt';
 import { Toaster } from '@/components/Toaster';
 import { Loader2 } from 'lucide-react';
 
@@ -24,6 +25,7 @@ export function ClientProviders({ children }: { children: ReactNode }) {
           <MapProvider>
             <Navbar />
             <main className="flex-1">{children}</main>
+            <InstallPrompt />
             <Toaster />
           </MapProvider>
         </AuthProvider>
