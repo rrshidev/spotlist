@@ -1,4 +1,4 @@
-import { SpotListResponse } from '@/types';
+import { SpotListResponse, RentalListResponse } from '@/types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 
@@ -164,6 +164,46 @@ export const api = {
     toggle: (spotId: string) => request<{ saved: boolean }>(`/wishlist/${spotId}`, { method: 'POST' }),
     list: () => request<{ id: string; spot_id: string; spot_name: string; city: string; category: string; media: string[]; latitude: number; longitude: number; created_at: string }[]>('/wishlist'),
     check: (spotId: string) => request<{ saved: boolean }>(`/wishlist/check/${spotId}`),
+  },
+
+  rentals: {
+    list: (params?: { city?: string; item_type?: string; lat?: number; lon?: number; radius?: number; page?: number }) => {
+      const searchParams = new URLSearchParams();
+      if (params?.city) searchParams.set('city', params.city);
+      if (params?.item_type) searchParams.set('item_type', params.item_type);
+      if (params?.lat) searchParams.set('lat', params.lat.toString());
+      if (params?.lon) searchParams.set('lon', params.lon.toString());
+      if (params?.radius) searchParams.set('radius', params.radius.toString());
+      if (params?.page) searchParams.set('page', params.page.toString());
+      return request<RentalListResponse>(`/rentals?${searchParams.toString()}`);
+    },
+    my: () => request('/rentals/my'),
+    get: (id: string) => request(`/rentals/${id}`),
+    create: (data: {
+      name: string;
+      description?: string;
+      latitude: number;
+      longitude: number;
+      address?: string;
+      city: string;
+      items?: string[];
+      prices?: string;
+      contacts?: Record<string, string>;
+      media?: string[];
+    }) => request('/rentals', { method: 'POST', body: JSON.stringify(data) }),
+    update: (id: string, data: Partial<{
+      name: string;
+      description: string;
+      address: string;
+      city: string;
+      latitude: number;
+      longitude: number;
+      items: string[];
+      prices: string;
+      contacts: Record<string, string>;
+      media: string[];
+    }>) => request(`/rentals/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+    delete: (id: string) => request(`/rentals/${id}`, { method: 'DELETE' }),
   },
 
   telegram: {

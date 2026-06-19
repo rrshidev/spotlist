@@ -6,7 +6,7 @@ import os
 
 from app.core.config import settings
 from app.db.session import init_db
-from app.api import auth, spots, comments, admin, geo, uploads, likes, wishlist
+from app.api import auth, spots, comments, admin, geo, uploads, likes, wishlist, rentals
 
 
 @asynccontextmanager
@@ -38,6 +38,7 @@ app.include_router(geo.router, prefix=settings.API_V1_STR)
 app.include_router(uploads.router, prefix=settings.API_V1_STR)
 app.include_router(likes.router, prefix=settings.API_V1_STR)
 app.include_router(wishlist.router, prefix=settings.API_V1_STR)
+app.include_router(rentals.router, prefix=settings.API_V1_STR)
 
 
 @app.get("/")

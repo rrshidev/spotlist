@@ -33,3 +33,22 @@ async def init_db():
         await conn.execute(text("ALTER TABLE spots ADD COLUMN IF NOT EXISTS last_status_at TIMESTAMP WITH TIME ZONE"))
         await conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS telegram_id VARCHAR(50)"))
         await conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS telegram_username VARCHAR(100)"))
+        # Rental table
+        await conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS rentals (
+                id VARCHAR(36) PRIMARY KEY,
+                name VARCHAR(255) NOT NULL,
+                description TEXT,
+                latitude DOUBLE PRECISION NOT NULL,
+                longitude DOUBLE PRECISION NOT NULL,
+                address VARCHAR(500),
+                city VARCHAR(255) NOT NULL,
+                items JSON DEFAULT '[]'::json,
+                prices TEXT,
+                contacts JSON DEFAULT '{}'::json,
+                media JSON DEFAULT '[]'::json,
+                owner_id VARCHAR(36) REFERENCES users(id),
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+            )
+        """))

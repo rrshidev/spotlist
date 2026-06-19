@@ -94,3 +94,28 @@ export interface SavedSpotItem {
   longitude: number;
   created_at: string;
 }
+
+export interface Rental {
+  id: string;
+  name: string;
+  description: string | null;
+  latitude: number;
+  longitude: number;
+  address: string | null;
+  city: string;
+  items: string[];
+  prices: string | null;
+  contacts: Record<string, string>;
+  media: string[];
+  owner_id: string;
+  owner_username: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface RentalListResponse {
+  rentals: Rental[];
+  total: number;
+  page: number;
+  page_size: number;
+}

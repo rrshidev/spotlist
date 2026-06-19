@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/contexts/I18nContext';
-import { MapPin, Plus, User, LogOut, Shield, Menu, X, BookmarkCheck } from 'lucide-react';
+import { MapPin, Plus, User, LogOut, Shield, Menu, X, BookmarkCheck, Package } from 'lucide-react';
 import { useState } from 'react';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 
@@ -31,6 +31,13 @@ export function Navbar() {
               className="text-white/70 hover:text-[#39ff14] transition-colors"
             >
               {t('nav.map')}
+            </Link>
+            <Link
+              href="/rentals"
+              className="text-white/70 hover:text-[#00f5ff] transition-colors flex items-center gap-1"
+            >
+              <Package className="w-4 h-4" />
+              {t('rentals.title')}
             </Link>
             <LanguageSwitcher />
 
@@ -114,6 +121,14 @@ export function Navbar() {
                 onClick={() => setMobileOpen(false)}
               >
                 {t('nav.map')}
+              </Link>
+              <Link
+                href="/rentals"
+                className="text-white/70 hover:text-[#00f5ff] transition-colors flex items-center gap-1"
+                onClick={() => setMobileOpen(false)}
+              >
+                <Package className="w-4 h-4" />
+                {t('rentals.title')}
               </Link>
               <LanguageSwitcher />
               {isAuthenticated ? (

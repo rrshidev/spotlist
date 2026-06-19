@@ -34,3 +34,4 @@ class User(Base):
     likes = relationship("Like", back_populates="user", cascade="all, delete-orphan")
     saved_spots = relationship("SavedSpot", back_populates="user", cascade="all, delete-orphan")
     reports = relationship("Report", back_populates="reporter", cascade="all, delete-orphan")
+    rentals = relationship("Rental", back_populates="owner", cascade="all, delete-orphan")
