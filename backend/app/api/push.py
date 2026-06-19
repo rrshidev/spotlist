@@ -1,5 +1,4 @@
 import json
-import base64
 import uuid
 from typing import Dict, Any, Optional
 from fastapi import APIRouter, HTTPException, Depends
@@ -14,11 +13,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/push", tags=["push"])
-
-
-def get_vapid_private_key() -> str:
-    raw = base64.b64decode(settings.VAPID_PRIVATE_KEY).decode()
-    return raw
 
 
 @router.get("/vapid-public-key")
@@ -107,8 +101,6 @@ async def send_test(
     try:
         from pywebpush import webpush, WebPushException
 
-        private_key = get_vapid_private_key()
-
         response = webpush(
             subscription_info=sub,
             data=json.dumps({
@@ -116,7 +108,7 @@ async def send_test(
                 "body": "Это тестовое уведомление!",
                 "url": "/",
             }),
-            vapid_private_key=private_key,
+            vapid_private_key=settings.VAPID_PRIVATE_KEY,
             vapid_claims={"sub": settings.VAPID_CLAIM_EMAIL},
         )
         logger.info(f"Push sent, status: {response.status_code}")
