@@ -1,4 +1,4 @@
-import { SpotListResponse, RentalListResponse } from '@/types';
+import { SpotListResponse, RentalListResponse, SessionListResponse } from '@/types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 
@@ -213,6 +213,38 @@ export const api = {
       request<{ status: string; telegram_username: string }>('/auth/telegram/link', { method: 'POST', body: JSON.stringify(data) }),
     unlink: () =>
       request<{ status: string }>('/auth/telegram/link', { method: 'DELETE' }),
+  },
+
+  sessions: {
+    list: (params?: { spot_id?: string; city?: string; date_from?: string; page?: number }) => {
+      const searchParams = new URLSearchParams();
+      if (params?.spot_id) searchParams.set('spot_id', params.spot_id);
+      if (params?.city) searchParams.set('city', params.city);
+      if (params?.date_from) searchParams.set('date_from', params.date_from);
+      if (params?.page) searchParams.set('page', params.page.toString());
+      return request<SessionListResponse>(`/sessions?${searchParams.toString()}`);
+    },
+    my: () => request('/sessions/my'),
+    joined: () => request('/sessions/joined'),
+    get: (id: string) => request(`/sessions/${id}`),
+    create: (data: {
+      spot_id: string;
+      title: string;
+      description?: string;
+      session_date: string;
+      session_time?: string;
+      max_participants?: number;
+    }) => request('/sessions', { method: 'POST', body: JSON.stringify(data) }),
+    update: (id: string, data: Partial<{
+      title: string;
+      description: string;
+      session_date: string;
+      session_time: string;
+      max_participants: number;
+    }>) => request(`/sessions/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+    delete: (id: string) => request(`/sessions/${id}`, { method: 'DELETE' }),
+    join: (id: string) => request(`/sessions/${id}/join`, { method: 'POST' }),
+    leave: (id: string) => request(`/sessions/${id}/leave`, { method: 'POST' }),
   },
 };
 

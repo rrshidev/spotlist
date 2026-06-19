@@ -321,6 +321,38 @@
     "ski": "Skis",
     "other": "Other"
   },
+  "sessions": {
+    "title": "Sessions & Jams",
+    "add": "Create session",
+    "edit": "Edit",
+    "delete": "Delete",
+    "join": "Join",
+    "leave": "Leave",
+    "participants": "Participants",
+    "noSessions": "No sessions yet",
+    "date": "Date",
+    "time": "Time",
+    "titleField": "Title",
+    "titlePlaceholder": "Evening jam at the park",
+    "description": "Description",
+    "descriptionPlaceholder": "Let's ride together, it'll be fun!",
+    "maxParticipants": "Max participants",
+    "maxParticipantsPlaceholder": "0 — unlimited",
+    "unknownSpot": "Spot",
+    "onSpot": "at",
+    "createdBy": "Organizer",
+    "deleteConfirm": "Delete session?",
+    "success": "Session created!",
+    "error": "Error",
+    "joined": "You joined!",
+    "left": "You left",
+    "updated": "Session updated",
+    "pastSessions": "Past",
+    "upcomingSessions": "Upcoming sessions",
+    "sessionsOnSpot": "Sessions at this spot",
+    "createOnSpot": "Create session at this spot",
+    "spotsSessions": "Sessions"
+  },
   "common": {
     "geoError": "Failed to get location"
   }

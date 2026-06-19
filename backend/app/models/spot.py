@@ -61,3 +61,4 @@ class Spot(Base):
     comments = relationship("Comment", back_populates="spot", cascade="all, delete-orphan")
     likes = relationship("Like", back_populates="spot", cascade="all, delete-orphan")
     saved_by = relationship("SavedSpot", back_populates="spot", cascade="all, delete-orphan")
+    sessions = relationship("Session", back_populates="spot", cascade="all, delete-orphan")

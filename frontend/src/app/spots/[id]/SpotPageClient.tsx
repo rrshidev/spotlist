@@ -9,7 +9,8 @@ import { api } from '@/lib/api';
 import { Spot, Comment } from '@/types';
 import { SpotMap } from '@/components/Map';
 import SaveButton from '@/components/SaveButton';
-import { MapPin, Clock, User, ArrowLeft, Edit, Trash2, Flag, Image as ImageIcon, Loader2, Send, X, Reply, Heart, Video, ShieldCheck, ShieldX, ShieldAlert, ShieldQuestion, Share2, Check } from 'lucide-react';
+import { SpotSessions } from '@/components/SpotSessions';
+import { MapPin, Clock, User, ArrowLeft, Edit, Trash2, Flag, Image as ImageIcon, Loader2, Send, X, Reply, Heart, Video, ShieldCheck, ShieldX, ShieldAlert, ShieldQuestion, Share2, Check, CalendarDays } from 'lucide-react';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 function getAvatarUrl(avatar: string | null | undefined): string {
@@ -402,6 +403,10 @@ export default function SpotPageClient() {
           <div className="h-64 border-t border-[#1f1f2e]">
             <SpotMap spots={[spot]} center={[spot.latitude, spot.longitude]} zoom={15} />
           </div>
+        </div>
+
+        <div className="bg-[#12121a] border border-[#1f1f2e] rounded-2xl p-6 mt-4">
+          <SpotSessions spotId={spotId} />
         </div>
 
         <div className="bg-[#12121a] border border-[#1f1f2e] rounded-2xl p-6 mt-4">

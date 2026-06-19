@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/contexts/I18nContext';
-import { MapPin, Plus, User, LogOut, Shield, Menu, X, BookmarkCheck, Package } from 'lucide-react';
+import { MapPin, Plus, User, LogOut, Shield, Menu, X, BookmarkCheck, Package, CalendarDays } from 'lucide-react';
 import { useState } from 'react';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 
@@ -38,6 +38,13 @@ export function Navbar() {
             >
               <Package className="w-4 h-4" />
               {t('rentals.title')}
+            </Link>
+            <Link
+              href="/sessions"
+              className="text-white/70 hover:text-[#f97316] transition-colors flex items-center gap-1"
+            >
+              <CalendarDays className="w-4 h-4" />
+              {t('sessions.title')}
             </Link>
             <LanguageSwitcher />
 
@@ -129,6 +136,14 @@ export function Navbar() {
               >
                 <Package className="w-4 h-4" />
                 {t('rentals.title')}
+              </Link>
+              <Link
+                href="/sessions"
+                className="text-white/70 hover:text-[#f97316] transition-colors flex items-center gap-1"
+                onClick={() => setMobileOpen(false)}
+              >
+                <CalendarDays className="w-4 h-4" />
+                {t('sessions.title')}
               </Link>
               <LanguageSwitcher />
               {isAuthenticated ? (

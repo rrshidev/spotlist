@@ -52,3 +52,26 @@ async def init_db():
                 updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
             )
         """))
+        # Sessions tables
+        await conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS sessions (
+                id VARCHAR(36) PRIMARY KEY,
+                spot_id VARCHAR(36) REFERENCES spots(id),
+                creator_id VARCHAR(36) REFERENCES users(id),
+                title VARCHAR(255) NOT NULL,
+                description TEXT,
+                session_date DATE NOT NULL,
+                session_time TIME,
+                max_participants INTEGER,
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+            )
+        """))
+        await conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS session_participants (
+                id VARCHAR(36) PRIMARY KEY,
+                session_id VARCHAR(36) REFERENCES sessions(id),
+                user_id VARCHAR(36) REFERENCES users(id),
+                joined_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                UNIQUE(session_id, user_id)
+            )
+        """))

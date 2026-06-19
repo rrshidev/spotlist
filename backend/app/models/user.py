@@ -35,3 +35,5 @@ class User(Base):
     saved_spots = relationship("SavedSpot", back_populates="user", cascade="all, delete-orphan")
     reports = relationship("Report", back_populates="reporter", cascade="all, delete-orphan")
     rentals = relationship("Rental", back_populates="owner", cascade="all, delete-orphan")
+    created_sessions = relationship("Session", back_populates="creator", cascade="all, delete-orphan")
+    joined_sessions = relationship("SessionParticipant", back_populates="user", cascade="all, delete-orphan")

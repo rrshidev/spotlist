@@ -119,3 +119,37 @@ export interface RentalListResponse {
   page: number;
   page_size: number;
 }
+
+export interface ParticipantInfo {
+  id: string;
+  user_id: string;
+  username: string;
+  avatar: string | null;
+  joined_at: string;
+}
+
+export interface SessionItem {
+  id: string;
+  spot_id: string;
+  creator_id: string;
+  creator_username: string | null;
+  creator_avatar: string | null;
+  title: string;
+  description: string | null;
+  session_date: string;
+  session_time: string | null;
+  max_participants: number | null;
+  participant_count: number;
+  participants: ParticipantInfo[];
+  spot_name: string | null;
+  spot_city: string | null;
+  created_at: string;
+  is_joined: boolean;
+}
+
+export interface SessionListResponse {
+  sessions: SessionItem[];
+  total: number;
+  page: number;
+  page_size: number;
+}

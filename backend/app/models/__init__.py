@@ -5,5 +5,6 @@ from app.models.report import Report
 from app.models.like import Like
 from app.models.wishlist import SavedSpot
 from app.models.rental import Rental
+from app.models.session import Session, SessionParticipant
 
-__all__ = ["User", "UserRole", "Spot", "SpotCategory", "Comment", "Report", "Like", "SavedSpot", "Rental"]
+__all__ = ["User", "UserRole", "Spot", "SpotCategory", "Comment", "Report", "Like", "SavedSpot", "Rental", "Session", "SessionParticipant"]

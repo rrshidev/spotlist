@@ -321,6 +321,38 @@
     "ski": "Лыжи",
     "other": "Другое"
   },
+  "sessions": {
+    "title": "Сессии и джемы",
+    "add": "Создать сессию",
+    "edit": "Редактировать",
+    "delete": "Удалить",
+    "join": "Участвовать",
+    "leave": "Отписаться",
+    "participants": "Участники",
+    "noSessions": "Сессий пока нет",
+    "date": "Дата",
+    "time": "Время",
+    "titleField": "Название",
+    "titlePlaceholder": "Вечерний джем на Набережной",
+    "description": "Описание",
+    "descriptionPlaceholder": "Собираемся покататься, будет весело!",
+    "maxParticipants": "Макс. участников",
+    "maxParticipantsPlaceholder": "0 — без ограничений",
+    "unknownSpot": "Спот",
+    "onSpot": "на",
+    "createdBy": "Организатор",
+    "deleteConfirm": "Удалить сессию?",
+    "success": "Сессия создана!",
+    "error": "Ошибка",
+    "joined": "Вы участвуете!",
+    "left": "Вы отписались",
+    "updated": "Сессия обновлена",
+    "pastSessions": "Прошедшие",
+    "upcomingSessions": "Будущие сессии",
+    "sessionsOnSpot": "Сессии на этом споте",
+    "createOnSpot": "Создать сессию на этом споте",
+    "spotsSessions": "Сессии"
+  },
   "common": {
     "geoError": "Не удалось получить геолокацию"
   }
