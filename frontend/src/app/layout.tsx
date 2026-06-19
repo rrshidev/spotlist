@@ -1,5 +1,6 @@
 import './globals.css';
 import { Providers } from './providers';
+import { YandexMetricaClient } from '@/components/YandexMetricaClient';
 
 export const metadata = {
   title: 'SpotList',
@@ -22,29 +23,6 @@ export default function RootLayout({
     <html lang="en">
       <head>
         {ymId ? (
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `
-(function(m,e,t,r,i,k,a){
-  m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-  m[i].l=1*new Date();
-  for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-  k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-})(window, document,'script','https://mc.yandex.ru/metrika/tag.js','ym');
-
-ym(${ymId}, 'init', {
-  ssr: true,
-  webvisor: true,
-  clickmap: true,
-  ecommerce: "dataLayer",
-  accurateTrackBounce: true,
-  trackLinks: true
-});
-              `.trim(),
-            }}
-          />
-        ) : null}
-        {ymId ? (
           <noscript>
             <div>
               <img
@@ -61,6 +39,7 @@ ym(${ymId}, 'init', {
           __html: `window.addEventListener('beforeinstallprompt',(e)=>{e.preventDefault();window.__pwaPrompt=e;});`
         }} />
         <Providers>{children}</Providers>
+        {ymId ? <YandexMetricaClient /> : null}
       </body>
     </html>
   );
