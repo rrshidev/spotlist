@@ -38,3 +38,6 @@ node_modules/
 # Production deploy artifacts
 .env.production
 .env.prod
+
+# Marketing plan (not public)
+marketing-plan.md
