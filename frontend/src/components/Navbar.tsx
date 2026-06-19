@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/contexts/I18nContext';
-import { MapPin, Plus, User, LogOut, Shield, Menu, X, BookmarkCheck, Package, CalendarDays, Heart } from 'lucide-react';
+import { Plus, User, LogOut, Shield, Menu, X, BookmarkCheck, Package, CalendarDays, Heart } from 'lucide-react';
 import { useState } from 'react';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 
@@ -17,9 +17,7 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#39ff14] to-[#00f5ff] flex items-center justify-center">
-              <MapPin className="w-6 h-6 text-black" />
-            </div>
+            <img src="/icon.svg" alt="SpotList" className="w-10 h-10" />
             <span className="text-xl font-bold bg-gradient-to-r from-[#39ff14] to-[#00f5ff] bg-clip-text text-transparent">
               SPOTLIST
             </span>
