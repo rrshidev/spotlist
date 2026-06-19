@@ -10,6 +10,7 @@ import { SpotCard } from '@/components/SpotCard';
 import { useI18n } from '@/contexts/I18nContext';
 import { User as UserIcon, MapPin, Loader2, LogOut, Shield, Edit, Camera, MapPinned, Activity, FileText, Save, X, MessageCircle } from 'lucide-react';
 import TelegramLoginButton, { type TelegramUser } from '@/components/TelegramLoginButton';
+import { PushPrompt } from '@/components/PushPrompt';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 
@@ -351,6 +352,8 @@ export default function ProfilePage() {
               </div>
             ) : (
               <div className="space-y-4">
+                  <PushPrompt />
+                  
                 {user.telegram_id ? (
                   <div className="p-4 bg-[#0a0a0f] rounded-xl">
                     <div className="flex items-center justify-between">

@@ -25,6 +25,10 @@ class Settings(BaseSettings):
     OPENWEATHERMAP_API_KEY: str = ""
     OPENWEATHERMAP_BASE_URL: str = "https://api.openweathermap.org/data/2.5"
 
+    VAPID_PUBLIC_KEY: str = ""
+    VAPID_PRIVATE_KEY: str = ""
+    VAPID_CLAIM_EMAIL: str = "mailto:contact@spotlist.app"
+
     class Config:
         env_file = ".env"
         case_sensitive = True

@@ -66,6 +66,17 @@ async def init_db():
                 created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
             )
         """))
+        # Push subscriptions
+        await conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS push_subscriptions (
+                id VARCHAR(36) PRIMARY KEY,
+                user_id VARCHAR(36) REFERENCES users(id),
+                endpoint VARCHAR(500) NOT NULL,
+                subscription JSON NOT NULL,
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+            )
+        """))
+
         await conn.execute(text("""
             CREATE TABLE IF NOT EXISTS session_participants (
                 id VARCHAR(36) PRIMARY KEY,

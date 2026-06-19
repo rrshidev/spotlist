@@ -358,6 +358,23 @@
     "feelsLike": "Feels like",
     "mps": "m/s"
   },
+  "push": {
+    "loading": "Checking notifications...",
+    "enabled": "Notifications enabled",
+    "disabled": "Notifications disabled",
+    "enabledHint": "You'll receive notifications about new sessions",
+    "disabledHint": "Enable to never miss a jam",
+    "enable": "Enable",
+    "disable": "Disable",
+    "test": "Test",
+    "blocked": "Notifications blocked",
+    "blockedHint": "Enable in browser settings",
+    "subscribed": "Notifications enabled!",
+    "unsubscribed": "Notifications disabled",
+    "denied": "Failed to subscribe",
+    "testSent": "Test notification sent!",
+    "error": "Error"
+  },
   "common": {
     "geoError": "Failed to get location"
   }
