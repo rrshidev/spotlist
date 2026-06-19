@@ -9,9 +9,22 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>;
 }
 
+let capturedEvent: BeforeInstallPromptEvent | null =
+  typeof window !== 'undefined' && (window as any).__pwaPrompt
+    ? (window as any).__pwaPrompt
+    : null;
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    capturedEvent = e as BeforeInstallPromptEvent;
+    (window as any).__pwaPrompt = capturedEvent;
+  });
+}
+
 export function InstallPrompt() {
   const { t } = useI18n();
-  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(capturedEvent);
   const [isApp, setIsApp] = useState(false);
 
   useEffect(() => {
@@ -25,10 +38,12 @@ export function InstallPrompt() {
 
     const handleBeforeInstall = (e: Event) => {
       e.preventDefault();
-      setDeferredPrompt(e as BeforeInstallPromptEvent);
+      capturedEvent = e as BeforeInstallPromptEvent;
+      setDeferredPrompt(capturedEvent);
     };
 
     const handleInstalled = () => {
+      capturedEvent = null;
       setDeferredPrompt(null);
       setIsApp(true);
     };
@@ -48,11 +63,15 @@ export function InstallPrompt() {
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
     if (outcome === 'accepted') {
+      capturedEvent = null;
       setDeferredPrompt(null);
     }
   };
 
-  const handleDismiss = () => setDeferredPrompt(null);
+  const handleDismiss = () => {
+    capturedEvent = null;
+    setDeferredPrompt(null);
+  };
 
   if (isApp || !deferredPrompt) return null;
 

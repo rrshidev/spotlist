@@ -19,6 +19,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        <script dangerouslySetInnerHTML={{
+          __html: `window.addEventListener('beforeinstallprompt',(e)=>{e.preventDefault();window.__pwaPrompt=e;});`
+        }} />
         <Providers>{children}</Providers>
       </body>
     </html>
