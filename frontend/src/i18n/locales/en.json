@@ -133,6 +133,10 @@
     "likeError": "Error liking",
     "commentDeleted": "Comment deleted",
     "commentUpdated": "Comment updated",
+    "share": "Share",
+    "copied": "Copied!",
+    "linkCopied": "Link copied",
+    "shareError": "Error copying link",
     "error": "Error"
   },
   "newSpot": {
