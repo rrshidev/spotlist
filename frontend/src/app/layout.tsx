@@ -1,5 +1,6 @@
 import './globals.css';
 import { Providers } from './providers';
+import { YandexMetrica } from '@/components/YandexMetrica';
 
 export const metadata = {
   title: 'SpotList',
@@ -22,6 +23,7 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{
           __html: `window.addEventListener('beforeinstallprompt',(e)=>{e.preventDefault();window.__pwaPrompt=e;});`
         }} />
+        <YandexMetrica />
         <Providers>{children}</Providers>
       </body>
     </html>
