@@ -25,7 +25,8 @@
     "notFound": "No spots found",
     "selectCity": "Select a city",
     "changeFilters": "Try changing filters or expanding the search radius",
-    "useSearch": "Use city search or enable geolocation"
+    "useSearch": "Use city search or enable geolocation",
+    "totalSpots": "{count} spots on the map"
   },
   "filter": {
     "title": "Filters:",
@@ -400,6 +401,19 @@
     "title": "Install SpotList",
     "subtitle": "Add to home screen for quick access",
     "install": "Install"
+  },
+  "partner": {
+    "title": "Partnership",
+    "subtitle": "List your brand and collab projects",
+    "description": "SpotList is a platform for finding spots for skateboarding, rollerblading, BMX and other extreme sports. We connect riders across Russia and beyond.",
+    "offerTitle": "What we offer",
+    "offer1": "Banner ads on the site with a link to your website",
+    "offer2": "Partner section with information about your brand",
+    "offer3": "Joint contests and jam sessions",
+    "contactTitle": "Contact us",
+    "contactText": "For partnership inquiries, write to Telegram:",
+    "contactButton": "Write to Telegram",
+    "navLink": "Partnership"
   },
   "common": {
     "geoError": "Failed to get location"

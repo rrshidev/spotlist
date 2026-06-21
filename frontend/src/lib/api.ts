@@ -71,6 +71,7 @@ export const api = {
       return request<SpotListResponse>(`/spots?${searchParams.toString()}`);
     },
     my: () => request('/spots/my'),
+    count: () => request<{ count: number }>('/spots/count'),
     get: (id: string) => request(`/spots/${id}`),
     create: (data: {
       name: string;

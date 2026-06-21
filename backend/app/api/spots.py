@@ -76,6 +76,14 @@ async def get_my_spots(
     return [_spot_to_response(s) for s in result.scalars().all()]
 
 
+@router.get("/count")
+async def get_spots_count(
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.scalar(select(func.count(Spot.id)))
+    return {"count": result or 0}
+
+
 @router.get("", response_model=SpotListResponse)
 async def get_spots(
     lat: Optional[float] = Query(None),

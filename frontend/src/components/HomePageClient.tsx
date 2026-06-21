@@ -14,10 +14,15 @@ import { MapPin, Loader2, Navigation } from 'lucide-react';
 export function HomePageClient() {
   const { t } = useI18n();
   const [spots, setSpots] = useState<Spot[]>([]);
+  const [totalCount, setTotalCount] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   const { location, radius, category, city, obstacleType, stairCount, rideType, setCity, detectedCity, isLoading: locationLoading } = useMap();
   const hasFilter = !!(city || detectedCity || location);
+
+  useEffect(() => {
+    api.spots.count().then(r => setTotalCount(r.count)).catch(() => {});
+  }, []);
 
   useEffect(() => {
     async function fetchSpots() {
@@ -91,6 +96,11 @@ export function HomePageClient() {
               <CitySearch />
             </div>
           </div>
+          {!city && !detectedCity && !location && totalCount > 0 && (
+            <div className="mb-4 text-sm text-white/40">
+              {t('home.totalSpots', { count: totalCount })}
+            </div>
+          )}
           {detectedCity && (
             <div className="mb-4 flex items-center gap-2 text-sm text-white/60">
               <Navigation className="w-4 h-4 text-[#39ff14]" />

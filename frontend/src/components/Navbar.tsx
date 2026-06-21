@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/contexts/I18nContext';
-import { Plus, User, LogOut, Shield, Menu, X, BookmarkCheck, Package, CalendarDays, Heart } from 'lucide-react';
+import { Plus, User, LogOut, Shield, Menu, X, BookmarkCheck, Package, CalendarDays, Heart, Handshake } from 'lucide-react';
 import { useState } from 'react';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 
@@ -43,6 +43,13 @@ export function Navbar() {
             >
               <CalendarDays className="w-4 h-4" />
               {t('sessions.title')}
+            </Link>
+            <Link
+              href="/partnership"
+              className="text-white/70 hover:text-[#39ff14] transition-colors flex items-center gap-1"
+            >
+              <Handshake className="w-4 h-4" />
+              {t('partner.navLink')}
             </Link>
             <Link
               href="/donate"
@@ -149,6 +156,14 @@ export function Navbar() {
               >
                 <CalendarDays className="w-4 h-4" />
                 {t('sessions.title')}
+              </Link>
+              <Link
+                href="/partnership"
+                className="text-white/70 hover:text-[#39ff14] transition-colors flex items-center gap-1"
+                onClick={() => setMobileOpen(false)}
+              >
+                <Handshake className="w-4 h-4" />
+                {t('partner.navLink')}
               </Link>
               <Link
                 href="/donate"
