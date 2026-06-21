@@ -1,11 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
   <rect width="512" height="512" rx="80" fill="#0a0a0f"/>
   <circle cx="256" cy="180" r="72" fill="none" stroke="#39ff14" stroke-width="24"/>
-  <path d="M256 252 L256 405" stroke="#39ff14" stroke-width="24" stroke-linecap="round"/>
+  <path d="M256 252 L256 395" stroke="#39ff14" stroke-width="24" stroke-linecap="round"/>
   <path d="M205 310 Q256 350 307 310" stroke="#39ff14" stroke-width="20" fill="none" stroke-linecap="round"/>
   <circle cx="256" cy="180" r="28" fill="#39ff14"/>
-  <path d="M145 390 Q185 405 225 405 L310 405 Q345 380 365 375" stroke="#39ff14" stroke-width="14" fill="none" stroke-linecap="round"/>
-  <circle cx="195" cy="442" r="14" fill="none" stroke="#39ff14" stroke-width="10"/>
-  <circle cx="318" cy="442" r="14" fill="none" stroke="#39ff14" stroke-width="10"/>
+  <path d="M145 390 Q185 405 200 405 L312 405 Q327 405 367 390" stroke="#39ff14" stroke-width="14" fill="none" stroke-linecap="round"/>
+  <circle cx="196" cy="442" r="14" fill="none" stroke="#39ff14" stroke-width="10"/>
+  <circle cx="316" cy="442" r="14" fill="none" stroke="#39ff14" stroke-width="10"/>
   <line x1="256" y1="405" x2="256" y2="425" stroke="#39ff14" stroke-width="14" stroke-linecap="round"/>
 </svg>
