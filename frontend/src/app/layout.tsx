@@ -1,5 +1,6 @@
 import './globals.css';
 import { Providers } from './providers';
+import { Footer } from '@/components/Footer';
 
 export const metadata = {
   title: 'SpotList',
@@ -24,7 +25,12 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{
           __html: `window.addEventListener('beforeinstallprompt',(e)=>{e.preventDefault();window.__pwaPrompt=e;});`
         }} />
-        <Providers>{children}</Providers>
+        <Providers>
+          <div className="min-h-screen flex flex-col">
+            <div className="flex-1">{children}</div>
+            <Footer />
+          </div>
+        </Providers>
         {ymId ? (
           <>
             <script

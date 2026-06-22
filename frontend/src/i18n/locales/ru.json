@@ -416,6 +416,11 @@
     "contactButton": "Написать в Telegram",
     "navLink": "Сотрудничество"
   },
+  "footer": {
+    "telegram": "Telegram-канал",
+    "partner": "Сотрудничество",
+    "donate": "Донат"
+  },
   "common": {
     "geoError": "Не удалось получить геолокацию"
   }

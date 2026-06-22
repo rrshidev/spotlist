@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/contexts/I18nContext';
-import { Plus, User, LogOut, Shield, Menu, X, BookmarkCheck, Package, CalendarDays, Heart, Handshake } from 'lucide-react';
+import { Plus, User, LogOut, Shield, Menu, X, BookmarkCheck, Package, CalendarDays } from 'lucide-react';
 import { useState } from 'react';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 
@@ -43,20 +43,6 @@ export function Navbar() {
             >
               <CalendarDays className="w-4 h-4" />
               {t('sessions.title')}
-            </Link>
-            <Link
-              href="/partnership"
-              className="text-white/70 hover:text-[#39ff14] transition-colors flex items-center gap-1"
-            >
-              <Handshake className="w-4 h-4" />
-              {t('partner.navLink')}
-            </Link>
-            <Link
-              href="/donate"
-              className="w-10 h-10 rounded-full bg-gradient-to-br from-[#ff1493] to-[#ff6b9d] flex items-center justify-center hover:shadow-lg hover:shadow-[#ff1493]/30 transition-all duration-300 group"
-              title={t('donate.title')}
-            >
-              <Heart className="w-5 h-5 text-white group-hover:scale-110 transition-transform" />
             </Link>
             <LanguageSwitcher />
 
@@ -156,24 +142,6 @@ export function Navbar() {
               >
                 <CalendarDays className="w-4 h-4" />
                 {t('sessions.title')}
-              </Link>
-              <Link
-                href="/partnership"
-                className="text-white/70 hover:text-[#39ff14] transition-colors flex items-center gap-1"
-                onClick={() => setMobileOpen(false)}
-              >
-                <Handshake className="w-4 h-4" />
-                {t('partner.navLink')}
-              </Link>
-              <Link
-                href="/donate"
-                className="flex items-center gap-2 text-white/70 hover:text-[#ff1493] transition-colors"
-                onClick={() => setMobileOpen(false)}
-              >
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#ff1493] to-[#ff6b9d] flex items-center justify-center">
-                  <Heart className="w-4 h-4 text-white" />
-                </div>
-                <span>{t('donate.navLink')}</span>
               </Link>
               <LanguageSwitcher />
               {isAuthenticated ? (

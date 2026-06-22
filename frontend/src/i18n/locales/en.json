@@ -416,6 +416,11 @@
     "contactButton": "Write to Telegram",
     "navLink": "Partnership"
   },
+  "footer": {
+    "telegram": "Telegram Channel",
+    "partner": "Partnership",
+    "donate": "Donate"
+  },
   "common": {
     "geoError": "Failed to get location"
   }
