@@ -14,7 +14,7 @@ const locales: Record<Locale, Translations> = { ru, en };
 interface I18nContextType {
   locale: Locale;
   setLocale: (l: Locale) => void;
-  t: (key: string) => string;
+  t: (key: string, params?: Record<string, string | number>) => string;
 }
 
 const I18nContext = createContext<I18nContextType | null>(null);
@@ -48,7 +48,15 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const t = useCallback(
-    (key: string): string => resolve(locales[locale], key),
+    (key: string, params?: Record<string, string | number>): string => {
+      let value = resolve(locales[locale], key);
+      if (params) {
+        for (const [k, v] of Object.entries(params)) {
+          value = value.replace(`{${k}}`, String(v));
+        }
+      }
+      return value;
+    },
     [locale]
   );
 
